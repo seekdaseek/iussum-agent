@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createKeyPairSignerFromBytes, pipe, createTransactionMessage, setTransactionMessageFeePayerSigner, setTransactionMessageLifetimeUsingBlockhash, appendTransactionMessageInstructions, signTransactionMessageWithSigners, getBase64EncodedWireTransaction, getSignatureFromTransaction } from '@solana/kit';
-import { getApproveCheckedInstruction, getRevokeInstruction, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
+import { getApproveCheckedInstruction, getRevokeInstruction, getTransferCheckedInstruction, getCreateAssociatedTokenIdempotentInstructionAsync, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
 import { makeRpc, principalAta, summaryLine } from '@iussum/core';
 
 export const DEVNET = { network: 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', mint: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU', decimals: 6, facilitator: 'https://facilitator.payai.network' };
@@ -55,7 +55,14 @@ export function makeChain({ rpcUrl = process.env.DEVNET_RPC || 'https://api.devn
     const info = (await rpc.call('getAccountInfo', [await principalAta(owner, DEVNET.mint), { encoding: 'jsonParsed', commitment: 'confirmed' }]))?.value?.data?.parsed?.info;
     return { delegate: info?.delegate ?? null, amount: BigInt(info?.delegatedAmount?.amount ?? 0) };
   }
-  return { rpc, sendTx, sendGrant, sendRevoke, usdc, delegation };
+  // plain USDC transfer owned by `from` (top-up of the refund float; devnet)
+  async function sendUsdc(from, toOwner, amountBase) {
+    return sendTx(from, [
+      await getCreateAssociatedTokenIdempotentInstructionAsync({ payer: from, mint: DEVNET.mint, owner: toOwner }),
+      getTransferCheckedInstruction({ source: await principalAta(from.address, DEVNET.mint), mint: DEVNET.mint, destination: await principalAta(toOwner, DEVNET.mint), authority: from, amount: BigInt(amountBase), decimals: DEVNET.decimals }, { programAddress: TOKEN_PROGRAM_ADDRESS }),
+    ]);
+  }
+  return { rpc, sendTx, sendGrant, sendRevoke, sendUsdc, usdc, delegation };
 }
 export const fmtUsdc = (b) => { const n = BigInt(b); const f = (n % 1_000_000n).toString().padStart(6, '0').replace(/0+$/, ''); return `${n / 1_000_000n}${f ? `.${f}` : ''}`; };
 export const explorerTx = (sig) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;

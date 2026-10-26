@@ -3,6 +3,7 @@
 //   compileMandate(text, { system, schema })    -> { value: <JSON object>, meta }          structured output; the caller validates it
 //   vision(imageBytes, question, { schema })    -> { value: <JSON object | string>, meta }
 //   segment(imageBytes, nounPhrase)             -> { value: { rawOutput, instances[], diagnostics }, meta }
+//   agentStep(messages, tools)                  -> { value: { content, tool_calls[], finish_reason }, meta }   one step of the shopping agent's tool loop
 // plus generateImage / editImage (Muse Image: shop catalogues and the dishonest edit), served by `meta` only.
 // Adapter per job from env: MODEL_PROVIDER (default for every job) and MODEL_PROVIDER_<JOB> to override one, e.g.
 //   MODEL_PROVIDER=baseten MODEL_PROVIDER_SEGMENT=modal      (open weights end to end)
@@ -16,7 +17,7 @@ import { createModalAdapter } from './adapters/modal.js';
 import { createFixtureAdapter } from './adapters/fixture.js';
 import { withRecording } from './record.js';
 
-export const JOBS = ['transcribe', 'compileMandate', 'vision', 'segment', 'generateImage', 'editImage'];
+export const JOBS = ['transcribe', 'compileMandate', 'vision', 'segment', 'agentStep', 'generateImage', 'editImage'];
 export const PROVIDERS = ['meta', 'baseten', 'modal', 'fixture'];
 
 function build(name, env, f) {

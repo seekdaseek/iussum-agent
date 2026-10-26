@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iussum-agent: say what your agent may spend</title>
+<meta name="description" content="Tell your AI agent out loud what it may spend. It buys within those limits, and when a seller delivers the wrong thing it builds the evidence itself and gets the money back by rule. Solana devnet.">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div id="banner" class="banner" hidden></div>
+<main>
+  <header>
+    <p class="eyebrow">Meta Global AI Developer Hackathon · Solana devnet · test money only</p>
+    <h1>Say what your agent may spend.</h1>
+    <p class="lede">It buys within those limits. When a seller delivers the wrong thing, it builds the evidence itself and gets the money back by rule.</p>
+  </header>
+
+  <section class="card" id="step1">
+    <h2><span class="n">1</span> Say it</h2>
+    <label for="req" class="sr">Your request</label>
+    <textarea id="req" rows="3" maxlength="600" spellcheck="false">Buy me three product photos of a red ceramic mug, under 2 USDC in total, at most 0.80 each, only from Kiln & Co and Mugworks, this week.</textarea>
+    <div class="row">
+      <button id="mic" type="button" class="ghost" aria-pressed="false">Record (up to 20 s)</button>
+      <span id="micState" class="muted" aria-live="polite"></span>
+      <span class="grow"></span>
+      <button id="compile" type="button" class="primary">Turn it into limits</button>
+    </div>
+    <p class="muted small">Nothing is granted yet. You will see exactly what the agent may do and confirm it first.</p>
+    <p class="error" id="err1" role="alert" hidden></p>
+  </section>
+
+  <section class="card" id="step2" hidden>
+    <h2><span class="n">2</span> Read-back</h2>
+    <div id="readback" class="readback"></div>
+    <div id="clarify" class="notice" hidden></div>
+    <div class="row" id="confirmRow">
+      <button id="confirm" type="button" class="primary">Confirm and run</button>
+      <button id="confirmControl" type="button" class="ghost">Run without the delivery check (control)</button>
+    </div>
+    <p class="muted small" id="modelNote"></p>
+    <p class="error" id="err2" role="alert" hidden></p>
+  </section>
+
+  <section class="card" id="step3" hidden>
+    <h2><span class="n">3</span> What happened</h2>
+    <ol id="timeline" class="timeline" aria-live="polite"></ol>
+    <div id="summary" class="summary" hidden></div>
+    <div id="purchases" class="purchases"></div>
+  </section>
+
+  <footer>
+    <p>Everything on this page is Solana devnet. The permission is a real on-chain grant that this page revokes when the run ends. Payment, grant and verdict plumbing is the earlier open-source <a href="https://github.com/seekdaseek/iussum">iussum</a>; the voice-to-mandate compiler, the shops, the delivery check, the evidence record and this page are new for the hackathon. <a href="https://github.com/seekdaseek/iussum-agent">Source</a>.</p>
+  </footer>
+</main>
+<script src="/app.js" type="module"></script>
+</body>
+</html>

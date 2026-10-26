@@ -9,6 +9,7 @@
 // Segmentation and image generation are not served here.
 import { ProviderError, unsupported } from '../errors.js';
 import { request, parseJson, dataUrl, extractJsonObject } from '../http.js';
+import { parseStep } from './meta.js';
 
 const NAME = 'baseten';
 
@@ -42,6 +43,12 @@ export function createBasetenAdapter({ apiKey, baseUrl = 'https://inference.base
       const q = schema ? `${question}\n\nAnswer with ONE JSON object and nothing else, matching this JSON Schema:\n${JSON.stringify(schema)}` : question;
       const { content, usage, r } = await chat('vision', [...(system ? [{ role: 'system', content: system }] : []), { role: 'user', content: [{ type: 'text', text: q }, { type: 'image_url', image_url: { url: dataUrl(image, mime) } }] }]);
       return wrap('vision', schema ? jsonFrom('vision', content) : content, r, usage);
+    },
+    // Tool calling is documented for Baseten Model APIs in general; the request shape below is the OpenAI-compatible one and is UNTESTED for Muse Spark Open.
+    async agentStep(messages, tools) {
+      const r = await request({ provider: NAME, job: 'agentStep', url: `${baseUrl}/chat/completions`, headers: { authorization: `Bearer ${apiKey}` }, json: { model, messages, tools, tool_choice: 'auto', temperature: 0 }, timeoutMs, f });
+      const j = parseJson(r.text, { provider: NAME, job: 'agentStep' });
+      return wrap('agentStep', parseStep(j, 'agentStep', NAME), r, j.usage);
     },
     async segment() { throw unsupported(NAME, 'segment'); },
     async generateImage() { throw unsupported(NAME, 'generateImage'); },

@@ -206,3 +206,19 @@ test('recording wraps a real adapter and the fixture adapter replays it; a missi
   await assert.rejects(fx.segment(PNG, 'another phrase'), (e) => e instanceof ProviderError && e.kind === 'fixture_missing');
   assert.notEqual(fixtureKey('segment', { image: PNG, phrase: 'a' }), fixtureKey('segment', { image: PNG, phrase: 'b' }));
 });
+
+test('agentStep: tool calls are parsed from an OpenAI-style answer; bad arguments are a parse error', async () => {
+  const tools = [{ type: 'function', function: { name: 'buy', parameters: { type: 'object' } } }];
+  const ok = json({ choices: [{ finish_reason: 'tool_calls', message: { content: null, tool_calls: [{ id: 'c1', type: 'function', function: { name: 'buy', arguments: '{"sku":"mug-front"}' } }] } }], usage: { prompt_tokens: 10, completion_tokens: 5 } });
+  const f = fakeFetch(ok);
+  const r = await createMetaAdapter({ apiKey: 'k', f }).agentStep([{ role: 'user', content: 'go' }], tools);
+  assert.equal(f.calls[0].body.tool_choice, 'auto');
+  assert.deepEqual(f.calls[0].body.tools, tools);
+  assert.deepEqual(r.value, { content: '', tool_calls: [{ id: 'c1', name: 'buy', arguments: { sku: 'mug-front' } }], finish_reason: 'tool_calls' });
+  const bad = json({ choices: [{ message: { tool_calls: [{ id: 'c1', function: { name: 'buy', arguments: '{oops' } }] } }] });
+  await assert.rejects(createMetaAdapter({ apiKey: 'k', f: fakeFetch(bad) }).agentStep([], tools), { kind: 'parse' });
+  await assert.rejects(createMetaAdapter({ apiKey: 'k', f: fakeFetch(json({ choices: [{ message: { refusal: 'no' } }] })) }).agentStep([], tools), { kind: 'refusal' });
+  const b = await createBasetenAdapter({ apiKey: 'b', f: fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: 'done' } }] })) }).agentStep([], tools);
+  assert.deepEqual(b.value, { content: 'done', tool_calls: [], finish_reason: 'stop' });
+  await assert.rejects(createModalAdapter({ url: 'u' }).agentStep([], tools), { kind: 'unsupported' });
+});

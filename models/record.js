@@ -8,6 +8,7 @@ const JOB_INPUT = {
   transcribe: (a) => ({ audio: a[0] }),
   compileMandate: (a) => ({ text: a[0], system: a[1].system, schema: a[1].schema }),
   vision: (a) => ({ image: a[0], question: a[1], schema: a[2]?.schema ?? null, system: a[2]?.system ?? null }),
+  agentStep: (a) => ({ messages: a[0], tools: a[1] }),
   segment: (a) => ({ image: a[0], phrase: a[1] }),
   generateImage: (a) => ({ prompt: a[0], size: a[1]?.size ?? null }),
   editImage: (a) => ({ image: a[0], prompt: a[1] }),

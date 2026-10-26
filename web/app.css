@@ -1,0 +1,46 @@
+:root{--bg:#f6f4ef;--card:#fffdf8;--ink:#1d1b17;--muted:#6b665c;--line:#e3ded2;--accent:#1f5f4a;--accent-ink:#fff;--bad:#b3261e;--warn:#8a5a00;--ok:#1f5f4a;--chip:#efeadc}
+@media (prefers-color-scheme:dark){:root{--bg:#14130f;--card:#1c1a15;--ink:#efeadc;--muted:#a39d8d;--line:#332f26;--accent:#6fcfa8;--accent-ink:#10231b;--bad:#ff8a80;--warn:#e8b04a;--ok:#6fcfa8;--chip:#26231b}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:28px 16px 64px}
+header{margin:8px 0 22px}
+.eyebrow{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.08;margin:0 0 10px;letter-spacing:-.02em}
+.lede{font-size:18px;color:var(--muted);margin:0;max-width:640px}
+h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.05em}
+.n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);color:var(--ink);font:inherit}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}.grow{flex:1}
+button{font:inherit;border-radius:10px;border:1px solid var(--line);padding:10px 16px;cursor:pointer;background:var(--card);color:var(--ink);min-height:44px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+button[aria-pressed=true]{border-color:var(--bad);color:var(--bad)}
+button:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}.small{font-size:13px}.sr{position:absolute;left:-9999px}
+.error{color:var(--bad);margin:10px 0 0}
+.banner{background:var(--bad);color:#fff;padding:10px 16px;text-align:center;font-weight:600}
+.readback{white-space:pre-line;font-size:17px;border-left:4px solid var(--accent);padding:2px 0 2px 14px}
+.notice{border:1px solid var(--warn);border-radius:10px;padding:10px 12px;color:var(--warn);margin-top:12px}
+.timeline{list-style:none;margin:0;padding:0;font-size:14px}
+.timeline li{padding:6px 0;border-bottom:1px dashed var(--line);display:flex;gap:10px}
+.timeline time{color:var(--muted);font-variant-numeric:tabular-nums;min-width:56px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.summary div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.summary b{display:block;font-size:24px;font-variant-numeric:tabular-nums}.summary span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.purchases{display:grid;gap:14px}
+.purchase{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.purchase h3{margin:0 0 8px;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pair figure,.verdict .pair figure{margin:0}
+.pair img{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.badge{font-size:12px;border-radius:999px;padding:2px 10px;background:var(--chip);border:1px solid var(--line)}
+.badge.DELIVERED_AS_OFFERED{color:var(--ok)}.badge.NOT_AS_OFFERED{color:var(--bad);border-color:var(--bad)}.badge.COULD_NOT_BE_CHECKED{color:var(--warn);border-color:var(--warn)}.badge.NOT_CHECKED{color:var(--muted)}
+.links{font-size:13px;margin:8px 0 0;display:flex;gap:14px;flex-wrap:wrap}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:13px;margin-top:28px}
+.verdict main{max-width:760px}.facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px}.facts dt{color:var(--muted)}.facts dd{margin:0;overflow-wrap:anywhere}
+.offer{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin:0}
+@media (max-width:560px){.pair{grid-template-columns:1fr}.facts{grid-template-columns:1fr}}

@@ -34,6 +34,7 @@ export function createFixtureAdapter({ dir }) {
     transcribe: (audio) => replay('transcribe', { audio }),
     compileMandate: (text, { system, schema }) => replay('compileMandate', { text, system, schema }),
     vision: (image, question, o = {}) => replay('vision', { image, question, schema: o.schema ?? null, system: o.system ?? null }),
+    agentStep: (messages, tools) => replay('agentStep', { messages, tools }),
     segment: (image, phrase) => replay('segment', { image, phrase }),
     generateImage: (prompt, o = {}) => replay('generateImage', { prompt, size: o.size ?? null }).then(inflatePng),
     editImage: (image, prompt) => replay('editImage', { image, prompt }).then(inflatePng),

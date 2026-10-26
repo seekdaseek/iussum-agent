@@ -8,3 +8,5 @@ out/
 .secrets/
 data/
 REPORT-*
+.claude/
+data-dev/

@@ -29,6 +29,6 @@ export function createModalAdapter({ url, token, f = globalThis.fetch, timeoutMs
       }
       return { value: { rawOutput: r.text, frame: { w: j.width, h: j.height }, instances, diagnostics: [] }, meta: { provider: NAME, model: j.model ?? 'sam3.1-open-weights', job: 'segment', latencyMs: r.latencyMs, requestId: r.requestId, images: 1 } };
     },
-    transcribe: no('transcribe'), compileMandate: no('compileMandate'), vision: no('vision'), generateImage: no('generateImage'), editImage: no('editImage'),
+    transcribe: no('transcribe'), compileMandate: no('compileMandate'), vision: no('vision'), agentStep: no('agentStep'), generateImage: no('generateImage'), editImage: no('editImage'),
   };
 }

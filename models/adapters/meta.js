@@ -8,6 +8,18 @@ import { parseImageStream, recordsOfKind, decodeMaskToRaster } from '@meta-sam/p
 const NAME = 'meta';
 export const META_MODELS = { chat: 'muse-spark-1.3', asr: 'muse-voice-transcribe-1.0', sam: 'sam-3.1', image: 'muse-image-1.0' };
 
+// Shared by the meta and baseten adapters: an OpenAI-style chat completion with tool_calls -> our step shape. Malformed arguments are a parse error, never guessed.
+export function parseStep(j, job, provider = NAME) {
+  const choice = j.choices?.[0], msg = choice?.message;
+  if (!msg) throw new ProviderError('parse', 'no message in the response', { provider, job, body: JSON.stringify(j).slice(0, 400) });
+  if (msg.refusal) throw new ProviderError('refusal', String(msg.refusal).slice(0, 300), { provider, job });
+  const tool_calls = (msg.tool_calls ?? []).map((t) => {
+    let args;
+    try { args = JSON.parse(t.function?.arguments ?? '{}'); } catch (e) { throw new ProviderError('parse', `tool call ${t.function?.name} has arguments that are not JSON: ${e.message}`, { provider, job, body: String(t.function?.arguments).slice(0, 300) }); }
+    return { id: t.id, name: t.function?.name, arguments: args };
+  });
+  return { content: typeof msg.content === 'string' ? msg.content : '', tool_calls, finish_reason: choice.finish_reason ?? null };
+}
 export function createMetaAdapter({ apiKey, baseUrl = 'https://api.meta.ai/v1', f = globalThis.fetch, timeoutMs = 90_000, models = META_MODELS } = {}) {
   if (!apiKey) throw new ProviderError('config', 'MODEL_API_KEY is not set', { provider: NAME });
   const auth = { authorization: `Bearer ${apiKey}` };
@@ -24,6 +36,10 @@ export function createMetaAdapter({ apiKey, baseUrl = 'https://api.meta.ai/v1', 
     const content = msg?.content;
     if (typeof content !== 'string' || content.length === 0) throw new ProviderError('parse', 'no message content in the response', { provider: NAME, job, body: r.text.slice(0, 400) });
     return { content, usage: j.usage ?? null, r };
+  }
+  async function rawChat(job, body) {
+    const r = await call(job, '/chat/completions', { json: body });
+    return { j: parseJson(r.text, { provider: NAME, job }), r };
   }
   const asJson = (job, content) => { try { return JSON.parse(content); } catch (e) { throw new ProviderError('parse', `structured output is not JSON: ${e.message}`, { provider: NAME, job, body: content.slice(0, 400) }); } };
 
@@ -59,6 +75,12 @@ export function createMetaAdapter({ apiKey, baseUrl = 'https://api.meta.ai/v1', 
       if (!Array.isArray(j.output)) throw new ProviderError('parse', 'no output array in the response', { provider: NAME, job: 'segment', body: r.text.slice(0, 400) });
       const text = j.output.filter((o) => o.type === 'message').flatMap((o) => o.content ?? []).filter((c) => c.type === 'output_text').map((c) => c.text).join(''); // empty = zero matches, not an error
       return wrap('segment', models.sam, await readSamResult(text), r, { images: 1 });
+    },
+    // One step of a tool-calling loop. messages/tools are OpenAI-compatible chat objects; the caller runs the tools and calls again.
+    // value: { content, tool_calls: [{ id, name, arguments (parsed object) }], finish_reason }. UNTESTED: the tool-calling page of the docs was not read.
+    async agentStep(messages, tools) {
+      const { j, r } = await rawChat('agentStep', { model: models.chat, messages, tools, tool_choice: 'auto' });
+      return wrap('agentStep', models.chat, parseStep(j, 'agentStep'), r, { usage: j.usage ?? null });
     },
     async generateImage(prompt, { size = '1024x1024' } = {}) {
       const r = await call('generateImage', '/images/generations', { json: { model: models.image, prompt, n: 1, size, response_format: 'b64_json', output_format: 'png' } });
