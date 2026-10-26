@@ -1,0 +1,3 @@
+[submodule "prior/iussum"]
+	path = prior/iussum
+	url = https://github.com/seekdaseek/iussum.git

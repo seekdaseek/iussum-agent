@@ -1,0 +1,7 @@
+BRIEF-*
+.env
+.env.*
+.DS_Store
+node_modules/
+out/
+*.log
