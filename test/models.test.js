@@ -76,6 +76,7 @@ test('meta segment: Responses API request shape; answer parsed by the Meta parse
   assert.equal(c.body.model, 'sam-3.1');
   assert.deepEqual(c.body.input[0].content.map((x) => x.type), ['input_text', 'input_image']);
   assert.equal(c.body.input[0].content[0].text, 'button');
+  assert.deepEqual(r.value.frame, { w: 320, h: 334 });
   assert.equal(r.value.instances.length, 2);
   assert.deepEqual(r.value.instances[0].box, { x1: 211, y1: 228, x2: 271, y2: 255 });
   assert.equal(r.value.instances[0].mask.width, 60);

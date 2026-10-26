@@ -98,5 +98,7 @@ export async function readSamResult(text) {
     let areaPx = 0; for (const v of bits) areaPx += v;
     instances.push({ id: m.objectId, box: b ? { x1: b.left, y1: b.top, x2: b.right, y2: b.bottom } : { x1: m.bounds.left, y1: m.bounds.top, x2: m.bounds.right, y2: m.bounds.bottom }, confidence: m.confidence ?? b?.confidence ?? null, mask: { ...m.bounds, width: m.mask.width, height: m.mask.height, bits }, areaPx });
   }
-  return { rawOutput: text, instances, diagnostics: res.diagnostics ?? [] };
+  // the frame size the boxes and masks are expressed in: every box token repeats w=..;h=.. (source pixels). Absent when there are no matches.
+  const fm = /;w=(\d+);h=(\d+)\|>/.exec(text);
+  return { rawOutput: text, frame: fm ? { w: Number(fm[1]), h: Number(fm[2]) } : null, instances, diagnostics: res.diagnostics ?? [] };
 }

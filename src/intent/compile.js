@@ -68,7 +68,7 @@ export function decideIntent(raw, ctx) {
   const mandate = {
     v: 'iussum/0.2', principal: ctx.principal, agent: ctx.agent, network: ctx.network, asset: ctx.asset,
     total_cap: total.toString(), per_payment_max: perMax.toString(), period_budget: total.toString(), period_seconds: hours * 3600,
-    allow: { pay_to: shops.map((s) => s.pay_to), resource_prefix: shops.map((s) => `${s.origin}/v1/`) },
+    allow: { pay_to: shops.map((s) => s.pay_to), resource_prefix: shops.map((s) => s.resource_prefix ?? `${s.origin}/v1/`) },
     not_before: ctx.now - 300, expires_at: ctx.now + hours * 3600, nonce: ctx.nonce ?? randomBytes(16).toString('hex'),
   };
   const errs = validateMandate(mandate);

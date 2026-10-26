@@ -27,7 +27,7 @@ export function createModalAdapter({ url, token, f = globalThis.fetch, timeoutMs
         const [x1, y1, x2, y2] = it.box;
         instances.push({ id: String(i), box: { x1, y1, x2, y2 }, confidence: it.score ?? null, mask: { left: 0, top: 0, right: info.width, bottom: info.height, width: info.width, height: info.height, bits }, areaPx });
       }
-      return { value: { rawOutput: r.text, instances, diagnostics: [] }, meta: { provider: NAME, model: j.model ?? 'sam3.1-open-weights', job: 'segment', latencyMs: r.latencyMs, requestId: r.requestId, images: 1 } };
+      return { value: { rawOutput: r.text, frame: { w: j.width, h: j.height }, instances, diagnostics: [] }, meta: { provider: NAME, model: j.model ?? 'sam3.1-open-weights', job: 'segment', latencyMs: r.latencyMs, requestId: r.requestId, images: 1 } };
     },
     transcribe: no('transcribe'), compileMandate: no('compileMandate'), vision: no('vision'), generateImage: no('generateImage'), editImage: no('editImage'),
   };
