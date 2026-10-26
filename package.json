@@ -1,0 +1,25 @@
+{
+  "name": "iussum-agent",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Spoken spending limits for AI agents, with segmentation-backed refunds.",
+  "workspaces": [
+    "prior/iussum/packages/core",
+    "prior/iussum/packages/seller",
+    "prior/iussum/packages/agent",
+    "prior/iussum/apps/resolver"
+  ],
+  "scripts": {
+    "test": "node --test --test-force-exit test/*.test.js"
+  },
+  "dependencies": {
+    "@meta-sam/parser": "0.1.0",
+    "ajv": "8.17.1",
+    "sharp": "0.34.5"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

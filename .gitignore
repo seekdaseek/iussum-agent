@@ -5,3 +5,6 @@ BRIEF-*
 node_modules/
 out/
 *.log
+.secrets/
+data/
+REPORT-*
