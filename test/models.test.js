@@ -112,20 +112,49 @@ test('meta: no key is a config error at construction', () => {
   assert.throws(() => createMetaAdapter({}), { kind: 'config' });
 });
 
-test('baseten: JSON is asked for in the prompt (no structured output) and extracted; segment is unsupported', async () => {
-  const f = fakeFetch(json({ choices: [{ message: { content: 'Sure! ```json\n{"status":"clarify","note":"a } in a string"}\n``` done' } }] }));
+test('baseten: JSON mode + schema in the prompt, reasoning effort and max_tokens sent, answer extracted; segment is unsupported', async () => {
+  const f = fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: 'Sure! ```json\n{"status":"clarify","note":"a } in a string"}\n``` done', reasoning_content: 'thinking' } }], usage: { prompt_tokens: 100, completion_tokens: 50, completion_tokens_details: { reasoning_tokens: 30 } } }));
   const a = createBasetenAdapter({ apiKey: 'b', f });
   const r = await a.compileMandate('x', { system: 'sys', schema: { type: 'object' } });
   const c = f.calls[0];
   assert.equal(c.url, 'https://inference.baseten.co/v1/chat/completions');
   assert.equal(c.body.model, 'meta-models/muse-spark-open-1026');
-  assert.equal(c.body.response_format, undefined);
+  assert.deepEqual(c.body.response_format, { type: 'json_object' });
+  assert.equal(c.body.reasoning_effort, 'low');
+  assert.equal(c.body.max_tokens, 4000);
   assert.match(c.body.messages[0].content, /ONE JSON object/);
   assert.deepEqual(r.value, { status: 'clarify', note: 'a } in a string' });
+  assert.equal(r.meta.reasoningTokens, 30);
+  assert.equal(r.meta.reasoningEffort, 'low');
   await assert.rejects(a.segment(PNG, 'mug'), { kind: 'unsupported' });
   await assert.rejects(a.generateImage('x'), { kind: 'unsupported' });
-  const g = fakeFetch(json({ choices: [{ message: { content: 'no json here' } }] }));
+  const g = fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: 'no json here' } }] }));
   await assert.rejects(createBasetenAdapter({ apiKey: 'b', f: g }).compileMandate('x', { system: 's', schema: {} }), { kind: 'parse' });
+});
+test('baseten: a cut answer (finish_reason length) is an error, an empty answer is an error, and a bad effort is a config error', async () => {
+  const cut = fakeFetch(json({ choices: [{ finish_reason: 'length', message: { content: '{"status":' } }], usage: { completion_tokens_details: { reasoning_tokens: 3990 } } }));
+  await assert.rejects(createBasetenAdapter({ apiKey: 'b', f: cut }).compileMandate('x', { system: 's', schema: {} }), { kind: 'truncated' });
+  const empty = fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: '  ', reasoning_content: 'only thoughts' } }] }));
+  await assert.rejects(createBasetenAdapter({ apiKey: 'b', f: empty }).compileMandate('x', { system: 's', schema: {} }), { kind: 'parse' });
+  await assert.rejects(createBasetenAdapter({ apiKey: 'b', f: fakeFetch(json({})), effort: { compileMandate: 'turbo' } }).compileMandate('x', { system: 's', schema: {} }), { kind: 'config' });
+  const f = fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: '{}' } }] }));
+  await createBasetenAdapter({ apiKey: 'b', f, effort: { compileMandate: 'medium' }, maxTokens: { compileMandate: 123 } }).compileMandate('x', { system: 's', schema: {} });
+  assert.equal(f.calls[0].body.reasoning_effort, 'medium'); assert.equal(f.calls[0].body.max_tokens, 123);
+});
+test('provider: BASETEN_EFFORT and BASETEN_EFFORT_<JOB> reach the adapter', async () => {
+  const f = fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: '{}' } }] }), json({ choices: [{ finish_reason: 'stop', message: { content: '{}' } }] }));
+  const p = createProvider({ env: { MODEL_PROVIDER: 'baseten', BASETEN_API_KEY: 'b', BASETEN_EFFORT: 'medium', BASETEN_EFFORT_VISION: 'high' }, f, ledger: new CostLedger() });
+  await p.compileMandate('x', { system: 's', schema: {} });
+  await p.vision(PNG, 'q', { schema: { type: 'object' } });
+  assert.deepEqual(f.calls.map((c) => c.body.reasoning_effort), ['medium', 'high']);
+});
+test('baseten cost: published prices applied to prompt, cached prompt and completion (reasoning included) tokens; the ledger counts tokens', () => {
+  const usage = { prompt_tokens: 1_000_000, completion_tokens: 100_000, prompt_tokens_details: { cached_tokens: 400_000 } };
+  assert.equal(priceCall({ provider: 'baseten', model: 'meta-models/muse-spark-open-1026', usage }), 0.6 * 1.25 + 0.4 * 0.15 + 0.1 * 4.25);
+  assert.equal(priceCall({ provider: 'baseten', model: 'some/other-model', usage }), null);
+  const l = new CostLedger();
+  l.add({ job: 'x', usage: { ...usage, completion_tokens_details: { reasoning_tokens: 60_000 } }, costUsd: 1 });
+  assert.deepEqual(l.summary().tokens, { prompt: 1_000_000, cached: 400_000, completion: 100_000, reasoning: 60_000 });
 });
 test('baseten: audio uses an audio_url part', async () => {
   const f = fakeFetch(json({ choices: [{ message: { content: ' buy a mug ' } }] }));
@@ -187,7 +216,7 @@ test('ledger persists to a file and reloads', () => {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'iussum-cost-')), 'cost.jsonl');
   const a = new CostLedger({ file }); a.add({ job: 'x', costUsd: 0.5 }); a.add({ job: 'y', costUsd: null });
   const b = new CostLedger({ file });
-  assert.deepEqual(b.summary(), { calls: 2, spentUsd: 0.5, unpricedCalls: 1, stopAtUsd: 100 });
+  assert.deepEqual(b.summary(), { calls: 2, spentUsd: 0.5, unpricedCalls: 1, stopAtUsd: 100, tokens: { prompt: 0, cached: 0, completion: 0, reasoning: 0 } });
 });
 
 test('recording wraps a real adapter and the fixture adapter replays it; a missing fixture is an error', async () => {

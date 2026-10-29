@@ -10,3 +10,5 @@ data/
 REPORT-*
 .claude/
 data-dev/
+.venv/
+data/

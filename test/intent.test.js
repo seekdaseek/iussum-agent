@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateMandate, summaryLine } from '@iussum/core';
-import { decideIntent, compileRequest, usdcToBase, baseToUsdc } from '../src/intent/compile.js';
+import { decideIntent, compileRequest, usdcToBase, baseToUsdc, cleanPhrase } from '../src/intent/compile.js';
 import { buildSystemPrompt } from '../src/intent/schema.js';
 import { matches } from '../eval/compare.js';
 import { makeCtx, raw, evalSpec } from './helpers.js';
@@ -135,4 +135,23 @@ test('compileRequest: a provider failure is an error status, not a default manda
   const g = await compileRequest('buy a mug', { provider: good, ctx });
   assert.equal(g.status, 'mandate');
   assert.equal(g.model.provider, 'stub');
+});
+
+test('held-out eval file: 22 requests, unique ids, every expectation reachable through the code (oracle, not a model score)', async () => {
+  const fs = await import('node:fs');
+  const held = JSON.parse(fs.readFileSync(new URL('../eval/requests-heldout.json', import.meta.url), 'utf8'));
+  assert.equal(held.requests.length, 22);
+  assert.equal(new Set(held.requests.map((r) => r.id)).size, 22);
+  assert.deepEqual(held.shops, evalSpec.shops);
+  for (const r of held.requests) { const m = matches(r.expect, decideIntent(oracle(r.expect), ctx)); assert.ok(m.ok, `${r.id}: ${m.why}`); }
+});
+
+test('cleanPhrase names the object, not the deliverable', () => {
+  for (const [a, b] of [['red mug photo', 'red mug'], ['Photo of a red ceramic mug', 'red ceramic mug'], ['a picture of the green teapot', 'green teapot'], ['  Red   Ceramic Mug ', 'red ceramic mug'], ['an enamel camping mug', 'enamel camping mug'], ['photo frame', 'photo frame'], ['photos', 'photos'], ['', '']]) assert.equal(cleanPhrase(a), b, a);
+});
+
+test('a vague item ("something nice") is a missing item, a bare noun is not', () => {
+  const code = (noun) => { const r = decideIntent(raw({ total_cap_usdc: '2', shops: ['kiln'], item: { noun_phrase: noun, count: 1 } }), ctx); return r.status === 'mandate' ? 'mandate' : `clarify:${r.clarify_field}`; };
+  for (const v of ['something nice', 'Something', 'anything cheap', 'stuff', 'things', 'whatever you like', 'photos', 'items']) assert.equal(code(v), 'clarify:item', v);
+  for (const ok of ['mug', 'red mug', 'wooden spoon', 'teapot']) assert.equal(code(ok), 'mandate', ok);
 });

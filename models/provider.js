@@ -6,7 +6,8 @@
 //   agentStep(messages, tools)                  -> { value: { content, tool_calls[], finish_reason }, meta }   one step of the shopping agent's tool loop
 // plus generateImage / editImage (Muse Image: shop catalogues and the dishonest edit), served by `meta` only.
 // Adapter per job from env: MODEL_PROVIDER (default for every job) and MODEL_PROVIDER_<JOB> to override one, e.g.
-//   MODEL_PROVIDER=baseten MODEL_PROVIDER_SEGMENT=modal      (open weights end to end)
+//   MODEL_PROVIDER=baseten MODEL_PROVIDER_SEGMENT=groundsam   (open weights end to end: Muse Spark Open grounds the phrase to a box, SAM 2.1 on Modal makes the mask)
+//   MODEL_PROVIDER_SEGMENT=modal is the SAM 3.1 route (phrase in, masks out) and needs the gated weights
 // Providers: meta | baseten | modal | fixture. A job a provider does not serve throws ProviderError('unsupported'); nothing falls back silently.
 import path from 'node:path';
 import { ProviderError } from './errors.js';
@@ -14,16 +15,21 @@ import { CostLedger, priceCall } from './cost.js';
 import { createMetaAdapter } from './adapters/meta.js';
 import { createBasetenAdapter } from './adapters/baseten.js';
 import { createModalAdapter } from './adapters/modal.js';
+import { createGroundSamAdapter } from './adapters/groundsam.js';
 import { createFixtureAdapter } from './adapters/fixture.js';
 import { withRecording } from './record.js';
 
 export const JOBS = ['transcribe', 'compileMandate', 'vision', 'segment', 'agentStep', 'generateImage', 'editImage'];
-export const PROVIDERS = ['meta', 'baseten', 'modal', 'fixture'];
+export const PROVIDERS = ['meta', 'baseten', 'modal', 'groundsam', 'fixture'];
 
 function build(name, env, f) {
   switch (name) {
     case 'meta': return createMetaAdapter({ apiKey: env.MODEL_API_KEY, baseUrl: env.META_BASE_URL || undefined, f });
-    case 'baseten': return createBasetenAdapter({ apiKey: env.BASETEN_API_KEY, model: env.BASETEN_MODEL || undefined, baseUrl: env.BASETEN_BASE_URL || undefined, f });
+    case 'baseten': {
+      const perJob = (prefix, base) => Object.fromEntries(['transcribe', 'compileMandate', 'vision', 'agentStep'].map((j) => [j, env[`${prefix}_${j.toUpperCase()}`] ?? env[prefix] ?? base?.[j]]).filter(([, v]) => v !== undefined && v !== null));
+      return createBasetenAdapter({ apiKey: env.BASETEN_API_KEY, model: env.BASETEN_MODEL || undefined, baseUrl: env.BASETEN_BASE_URL || undefined, f, effort: perJob('BASETEN_EFFORT'), maxTokens: Object.fromEntries(Object.entries(perJob('BASETEN_MAX_TOKENS')).map(([k, v]) => [k, Number(v)])) });
+    }
+    case 'groundsam': return createGroundSamAdapter({ ground: build('baseten', env, f), url: env.MODAL_SAM2_URL, token: env.MODAL_SAM_TOKEN, f });
     case 'modal': return createModalAdapter({ url: env.MODAL_SAM_URL, token: env.MODAL_SAM_TOKEN, f });
     case 'fixture':
       if (env.DEMO === '1') throw new ProviderError('forbidden', 'the fixture adapter is for offline tests and is refused when DEMO=1', { provider: 'fixture' });
@@ -32,7 +38,7 @@ function build(name, env, f) {
   }
 }
 
-export function createProvider({ env = process.env, f = globalThis.fetch, ledger = new CostLedger({ file: env.COST_LEDGER || null }) } = {}) {
+export function createProvider({ env = process.env, f = globalThis.fetch, ledger = new CostLedger({ file: env.COST_LEDGER || null, stopAtUsd: Number(env.STOP_AT_USD ?? 70) }) } = {}) {
   const cache = new Map();
   const adapterFor = (job) => {
     const name = (env[`MODEL_PROVIDER_${job.toUpperCase()}`] || env.MODEL_PROVIDER || 'meta').toLowerCase();

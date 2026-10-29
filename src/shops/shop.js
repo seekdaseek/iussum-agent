@@ -40,7 +40,13 @@ export function createShop(cfg) {
   const gate = createSellerGate({ mode, payTo: signer.address, asset, network, rpc, origin, dataDir: cfg.dataDir, key, log });
   const router = express.Router();
   router.get('/.well-known/iussum.json', gate.wellKnown);
-  router.get('/v1/catalog', (_req, res) => res.json({ shop: cat.name, id: cat.id, pay_to: signer.address, network, asset, items: cat.items.map((i) => ({ sku: i.sku, title: i.title, description: i.description, price_usdc: i.price_usdc, price: usdcToBase(i.price_usdc).toString(), preview: `${origin}${base}/v1/preview/${i.sku}`, resource: `${origin}${base}/v1/photo/${i.sku}` })) }));
+  router.get('/v1/catalog', (_req, res) => res.json({ shop: cat.name, id: cat.id, pay_to: signer.address, network, asset, items: cat.items.map((i) => ({ sku: i.sku, title: i.title, description: i.description, price_usdc: i.price_usdc, price: usdcToBase(i.price_usdc).toString(), preview: `${origin}${base}/v1/preview/${i.sku}`, resource: `${origin}${base}/v1/photo/${i.sku}`, credit: i.credit ?? null })) }));
+  // the shop's own page: what it sells and the licence and author of every photograph (attribution for the open-licence images)
+  const esc = (x) => String(x ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  router.get('/', (_req, res) => {
+    const rows = cat.items.map((i) => `<article class="purchase"><h3>${esc(i.title)} · ${esc(i.price_usdc)} USDC</h3><div class="pair"><figure><img src="${esc(`${base}/v1/preview/${i.sku}`)}" alt="${esc(i.description)}"><figcaption>${esc(i.description)}</figcaption></figure></div>${i.credit ? `<p class="muted small">Photo: <a href="${esc(i.credit.source)}" rel="noopener">${esc(i.credit.title)}</a> by ${esc(i.credit.author)}, <a href="${esc(i.credit.license_url)}" rel="noopener">${esc(i.credit.license)}</a>, via Wikimedia Commons.</p>` : ''}</article>`).join('');
+    res.type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(cat.name)}</title><link rel="stylesheet" href="/app.css"></head><body><main><p class="eyebrow">Demo shop · Solana devnet · pay with x402</p><h1>${esc(cat.name)}</h1><p class="lede">Product photos. Each purchase is a paid GET on <code>${esc(base)}/v1/photo/&lt;sku&gt;</code>.</p><div class="purchases">${rows}</div></main></body></html>`);
+  });
   router.get('/v1/preview/:sku', (req, res) => {
     const it = cat.items.find((i) => i.sku === req.params.sku);
     const img = it && readImage(cat, it.image);

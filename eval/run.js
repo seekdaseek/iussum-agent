@@ -8,7 +8,8 @@ import { createProvider } from '../models/provider.js';
 import { compileRequest } from '../src/intent/compile.js';
 import { matches } from './compare.js';
 
-const spec = JSON.parse(fs.readFileSync(new URL('./requests.json', import.meta.url), 'utf8'));
+const fileArg = process.argv.includes('--file') ? process.argv[process.argv.indexOf('--file') + 1] : 'requests.json';
+const spec = JSON.parse(fs.readFileSync(new URL(`./${fileArg}`, import.meta.url), 'utf8'));
 const limit = Number(process.argv[process.argv.indexOf('--limit') + 1]) || spec.requests.length;
 const provider = createProvider();
 const names = new Set(['compileMandate'].map((j) => provider.adapterName(j)));
@@ -28,8 +29,8 @@ for (const r of spec.requests.slice(0, limit)) {
   console.log(`${m.ok ? 'PASS' : 'FAIL'} ${r.id}${m.ok ? '' : `  ${m.why}`}`);
 }
 const exact = rows.filter((r) => r.ok).length;
-const out = { provider: [...names][0], when: new Date().toISOString(), exact, total: rows.length, spend: provider.ledger.summary(), rows };
+const out = { provider: [...names][0], file: fileArg, when: new Date().toISOString(), exact, total: rows.length, spend: provider.ledger.summary(), rows };
 fs.mkdirSync(new URL('./results/', import.meta.url), { recursive: true });
-const file = new URL(`./results/${out.provider}-${out.when.replace(/[:.]/g, '-')}.json`, import.meta.url);
+const file = new URL(`./results/${out.provider}-${fileArg.replace(/\.json$/, '')}-${out.when.replace(/[:.]/g, '-')}.json`, import.meta.url);
 fs.writeFileSync(file, JSON.stringify(out, null, 1));
 console.log(`\n${exact}/${rows.length} compile exactly to the expected outcome (provider ${out.provider}). Failures listed above; full rows in ${path.relative(process.cwd(), file.pathname)}`);

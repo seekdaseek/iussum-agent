@@ -94,3 +94,27 @@ test('registry: each shop has its own prefix under one origin, and the prefixes 
   assert.deepEqual(reg.map((r) => r.resource_prefix), SHOP_DEFS.map((d) => `https://meta.example${shopBase(d.id)}/v1/`));
   for (const a of reg) for (const b of reg) if (a !== b) assert.equal(a.resource_prefix.startsWith(b.resource_prefix), false);
 });
+
+import { buildRealCatalogs, fetchPhotos, REAL_SPEC, PHOTOS, sourcesMarkdown } from '../src/shops/real-catalog.js';
+import sharp from 'sharp';
+test('real catalogue: built from open-licence photos, every item carries its credit, the dishonest shop delivers a different file, SOURCES.md lists every photo', async () => {
+  const photosDir = tmp(), catalogDir = tmp();
+  const colour = { mug: '#c33', glass: '#9cf' };
+  await fetchPhotos({ photosDir, fetchBytes: async (url) => sharp({ create: { width: 1500, height: 2000, channels: 3, background: /Tumbler/.test(url) ? colour.glass : colour.mug } }).jpeg().toBuffer() });
+  assert.deepEqual(fs.readdirSync(photosDir).sort(), Object.keys(PHOTOS).map((k) => `${k}.png`).sort());
+  assert.equal((await sharp(path.join(photosDir, 'mug1.png')).metadata()).height, 1024); // resized to at most 1024 on the long side
+  buildRealCatalogs({ photosDir, catalogDir });
+  for (const d of SHOP_DEFS) {
+    const cat = loadCatalog(catalogDir, d.id);
+    assert.equal(cat.items.length, REAL_SPEC[d.id].items.length);
+    for (const it of cat.items) { assert.ok(it.credit.author && it.credit.license && it.credit.source.startsWith('https://commons.wikimedia.org/wiki/File:')); assert.match(it.credit.license, /^(CC0|CC BY)/); }
+  }
+  const mw = loadCatalog(catalogDir, 'mugworks');
+  for (const it of mw.items) { assert.notEqual(fs.readFileSync(path.join(catalogDir, 'mugworks', it.image)).toString('hex'), fs.readFileSync(path.join(catalogDir, 'mugworks', it.delivered_image)).toString('hex')); assert.ok(it.delivered_credit.license); }
+  assert.equal(loadCatalog(catalogDir, 'glazed').items.length, 2);
+  const md = fs.readFileSync(path.join(catalogDir, 'SOURCES.md'), 'utf8');
+  for (const k of Object.keys(PHOTOS)) assert.ok(md.includes(`${k}.png`), k);
+  assert.match(md, /Muse Image was planned/);
+  assert.equal(sourcesMarkdown(), md);
+  for (const p of Object.values(PHOTOS)) assert.match(p.license, /^(CC0 1\.0|CC BY \d\.\d)$/); // no SA/NC/ND
+});

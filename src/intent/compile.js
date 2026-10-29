@@ -23,6 +23,15 @@ export function baseToUsdc(b) {
   const n = BigInt(b), w = n / 1_000_000n, f = (n % 1_000_000n).toString().padStart(6, '0').replace(/0+$/, '');
   return f ? `${w}.${f}` : `${w}`;
 }
+// The phrase later goes to SAM as a noun phrase, so it must name the object, not the deliverable: "photo of a red mug" and "red mug photo" both become "red mug"
+// (found by the held-out eval, 2026-10-29: the model answered "red mug photo").
+export function cleanPhrase(p) {
+  let t = String(p ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+  t = t.replace(/^(?:(?:a|an|the|some)\s+)?(?:photos?|pictures?|images?|shots?|pics?)\s+of\s+/, '').replace(/\s+(?:photos?|pictures?|images?|pics?)$/, '').replace(/^(?:a|an|the)\s+/, '');
+  return t;
+}
+// "something nice", "stuff", "whatever": nothing SAM could look for, so the item is missing (found by the held-out eval: the model accepted "something nice").
+export const isVaguePhrase = (p) => /^(?:something|anything|stuff|things?|items?|whatever|products?|goods|photos?)(?:\s+(?:nice|good|cool|cheap|pretty|interesting|useful|random|else))?$/.test(p) || /^(?:something|anything|stuff|whatever)\b/.test(p);
 const reject = (code, detail = null) => ({ status: 'reject', reject_code: code, message: REJECT_MESSAGES[code], detail });
 const clarify = (field, detail = null) => ({ status: 'clarify', clarify_field: field, question: QUESTIONS[field], detail });
 
@@ -42,8 +51,8 @@ export function decideIntent(raw, ctx) {
   if (raw.total_cap_usdc == null) missing.push('total_cap');
   else if (total === null || total <= 0n) missing.push('amounts');
   if (shopIds.length === 0) missing.push('shops');
-  const phrase = raw.item.noun_phrase?.trim().toLowerCase().replace(/\s+/g, ' ') ?? '';
-  if (!phrase) missing.push('item');
+  const phrase = cleanPhrase(raw.item.noun_phrase);
+  if (!phrase || isVaguePhrase(phrase)) missing.push('item');
   let perMax = total;
   if (raw.per_payment_max_usdc != null) { perMax = usdcToBase(raw.per_payment_max_usdc); if (perMax === null || perMax <= 0n) missing.push('amounts'); }
   if (missing.length) return clarify(CLARIFY_ORDER.find((f) => missing.includes(f)), `missing: ${missing.join(',')}`);

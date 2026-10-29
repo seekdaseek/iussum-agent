@@ -64,6 +64,15 @@ export async function verifyEvidence({ record, evidence_id }, { shopKey, overlay
       if (!same) bad('the recorded segmentation instances differ from what the recorded raw output parses to');
     } catch (e) { bad(`the recorded raw segmentation output does not parse: ${e.message}`); }
   }
+  // path B (Spark Open box + SAM 2.1 mask): the recorded instances must be the recorded boxes and scores, and "nothing found" must be what the grounding answer said
+  if (checks.seg?.raw_output !== undefined && checks.seg.model?.provider === 'baseten+modal') {
+    try {
+      const raw = JSON.parse(checks.seg.raw_output), boxes = raw.sam?.boxes ?? [], scores = raw.sam?.scores ?? [], inst = checks.seg.instances;
+      const same = inst.length === boxes.length && inst.every((i, k) => JSON.stringify([i.box.x1, i.box.y1, i.box.x2, i.box.y2]) === JSON.stringify(boxes[k]) && i.confidence === (scores[k] ?? null));
+      if (!same) bad('the recorded segmentation instances differ from the boxes and scores in the recorded raw output');
+      if (inst.length === 0 && raw.ground?.found === true && raw.ground?.boxes?.length > 0 && !(checks.seg.diagnostics ?? []).length) bad('the grounding answer found boxes but no instance was recorded and no diagnostic explains it');
+    } catch (e) { bad(`the recorded raw segmentation output does not parse: ${e.message}`); }
+  }
   if (record.rule.version !== RULE_VERSION) bad(`rule version ${record.rule.version} is not ${RULE_VERSION}`);
   const again = applyRule(checks, record.rule.thresholds);
   if (again.outcome !== record.outcome) bad(`the outcome ${record.outcome} does not follow from the recorded checks (they give ${again.outcome})`);
