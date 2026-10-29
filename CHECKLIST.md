@@ -26,7 +26,7 @@ Submissions due **Wed Nov 4, 9:00 PM ET = Nov 5 02:00 UTC** (our target: submitt
 
 ## 3. Judging criteria and where we stand
 
-Stage 1 pass/fail: fits a problem statement (yes) and really uses Meta's models (yes: Muse Spark Open for every language, audio and vision job; SAM 2.1 for masks; both Meta open weights). Stage 2, 0 to 10 each: **Impact 30%** (an agent that spends only inside spoken limits and gets money back for a wrong delivery; the x402 dispute-evidence thread is a live standards discussion in which this work is cited), **Use of Meta AI tooling 25%** (one open-weight model doing five jobs, audio in, tool calling, JSON mode, vision and box grounding, plus SAM 2.1 and an evaluated SAM 3; "beyond a basic integration" is the evidence pipeline), **Technical depth 20%** (three-state rule, signed delivery attestations, recomputable evidence records, chain-proven refund claimed once, 96 offline tests, mutation check on the refund claim), **Demo 25%** (live page, a run takes 2 to 3 minutes, video). Stage 3: top 5 per track judged from the video.
+Stage 1 pass/fail: fits a problem statement (yes) and really uses Meta's models (yes: Muse Spark Open for every language, audio and vision job; SAM 2.1 for masks; both Meta open weights). Stage 2, 0 to 10 each: **Impact 30%** (an agent that spends only inside spoken limits and gets money back for a wrong delivery; the x402 dispute-evidence thread is a live standards discussion in which this work is cited), **Use of Meta AI tooling 25%** (one open-weight model doing five jobs, audio in, tool calling, JSON mode, vision and box grounding, plus SAM 2.1 and an evaluated SAM 3; "beyond a basic integration" is the evidence pipeline), **Technical depth 20%** (three-state rule, signed delivery attestations, recomputable evidence records, an arbiter that re-runs the check itself, chain-proven refund claimed once, 96 offline tests, mutation check on the refund claim), **Demo 25%** (live page, a run takes about 4 minutes, a finished run opens in seconds, video). Stage 3: top 5 per track judged from the video.
 
 ## 4. Rules and risks
 
@@ -54,7 +54,7 @@ Stage 1 pass/fail: fits a problem statement (yes) and really uses Meta's models 
 
 ## 6. Open items, in order
 
-1. Decide `RECHECK` for the live arbiter (independent re-run of the check on the shop-attested bytes: about $0.01 and 15 s per dispute) or document that the arbiter recomputes from the buyer's recorded answers.
+1. ~~Decide RECHECK~~ Done 2026-10-29: the live arbiter re-runs the check itself (RECHECK=1). 12 of 12 re-runs agreed; about 31 s and $0.01 extra per dispute; a run now takes about 4 minutes.
 2. A "last completed run" link on the live page, so a judge can look without waiting.
 3. Twins and field check again after the Cerebral Valley gallery goes public (it was not public on Oct 29).
 4. Render the video (plan in the day-4 report), upload it, put the link in the form.
