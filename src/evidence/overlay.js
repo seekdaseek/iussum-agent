@@ -22,7 +22,13 @@ export async function makeOverlay(imageBytes, { instance = null, frame = null } 
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size.w}" height="${size.h}"><rect x="${t / 2}" y="${t / 2}" width="${size.w - t}" height="${size.h - t}" fill="none" stroke="#d11" stroke-width="${t}"/></svg>`;
     return { png: await base.composite([{ input: Buffer.from(svg) }]).png().toBuffer(), size, drawn: 'none' };
   }
-  const m = instance.mask, { sx, sy } = scaleOf(frame, size);
+  const { sx, sy } = scaleOf(frame, size);
+  if (!instance.mask) { // path C: a grounding box and no mask: the box is drawn alone
+    const b = boxInImage(instance.box, frame, size), t = Math.max(3, Math.round(Math.min(size.w, size.h) / 120));
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size.w}" height="${size.h}"><rect x="${b.x1}" y="${b.y1}" width="${Math.max(1, b.x2 - b.x1)}" height="${Math.max(1, b.y2 - b.y1)}" fill="none" stroke="rgb(${TINT.r},${TINT.g},${TINT.b})" stroke-width="${t}"/></svg>`;
+    return { png: await base.composite([{ input: Buffer.from(svg) }]).png().toBuffer(), size, drawn: 'box' };
+  }
+  const m = instance.mask;
   // the mask raster covers [left,right) x [top,bottom) of the model's frame; paint each set bit as a tinted block in image pixels
   const w = Math.max(1, Math.round((m.right - m.left) * sx)), h = Math.max(1, Math.round((m.bottom - m.top) * sy));
   const rgba = Buffer.alloc(w * h * 4);

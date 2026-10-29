@@ -20,7 +20,7 @@ import { createFixtureAdapter } from './adapters/fixture.js';
 import { withRecording } from './record.js';
 
 export const JOBS = ['transcribe', 'compileMandate', 'vision', 'segment', 'agentStep', 'generateImage', 'editImage'];
-export const PROVIDERS = ['meta', 'baseten', 'modal', 'groundsam', 'fixture'];
+export const PROVIDERS = ['meta', 'baseten', 'modal', 'groundsam', 'ground', 'fixture'];
 
 function build(name, env, f) {
   switch (name) {
@@ -30,6 +30,7 @@ function build(name, env, f) {
       return createBasetenAdapter({ apiKey: env.BASETEN_API_KEY, model: env.BASETEN_MODEL || undefined, baseUrl: env.BASETEN_BASE_URL || undefined, f, effort: perJob('BASETEN_EFFORT'), maxTokens: Object.fromEntries(Object.entries(perJob('BASETEN_MAX_TOKENS')).map(([k, v]) => [k, Number(v)])) });
     }
     case 'groundsam': return createGroundSamAdapter({ ground: build('baseten', env, f), url: env.MODAL_SAM2_URL, token: env.MODAL_SAM_TOKEN, f });
+    case 'ground': return createGroundSamAdapter({ ground: build('baseten', env, f), maskless: true, f }); // path C: boxes from Muse Spark Open only, no mask
     case 'modal': return createModalAdapter({ url: env.MODAL_SAM_URL, token: env.MODAL_SAM_TOKEN, f });
     case 'fixture':
       if (env.DEMO === '1') throw new ProviderError('forbidden', 'the fixture adapter is for offline tests and is refused when DEMO=1', { provider: 'fixture' });

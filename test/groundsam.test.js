@@ -89,3 +89,20 @@ test('evidence from path B verifies, and a doctored box, score or "found" is cau
   assert.ok((await tamper((r) => { r.checks.seg.instances[0].confidence = 0.99; })).problems.some((p) => /differ from the boxes and scores/.test(p)));
   assert.ok((await tamper((r) => { r.checks.seg.instances = []; })).problems.some((p) => /differ from the boxes and scores|no instance was recorded/.test(p)));
 });
+
+test('path C (maskless): boxes from Spark Open only, no mask and no confidence, nothing sent to Modal; the overlay draws the box alone', async () => {
+  const img = await syntheticPng('red-mug');
+  const mf = fakeFetch();
+  const a = createGroundSamAdapter({ ground: createBasetenAdapter({ apiKey: 'b', f: fakeFetch(chat({ found: true, boxes: [{ x1: 80, y1: 90, x2: 195, y2: 190 }] })) }), maskless: true, f: mf });
+  assert.equal(a.name, 'baseten-ground');
+  const r = await a.segment(img, 'red ceramic mug');
+  assert.equal(mf.calls.length, 0);
+  assert.deepEqual(r.value.instances, [{ id: '0', box: { x1: 80, y1: 90, x2: 195, y2: 190 }, confidence: null, mask: null, areaPx: null }]);
+  assert.equal(JSON.parse(r.value.rawOutput).sam, null);
+  assert.equal(r.meta.provider, 'baseten-ground'); assert.equal(r.meta.images, 0);
+  const { makeOverlay } = await import('../src/evidence/overlay.js');
+  const o = await makeOverlay(img, { instance: r.value.instances[0], frame: r.value.frame });
+  assert.equal(o.drawn, 'box');
+  const p = createProvider({ env: { MODEL_PROVIDER: 'baseten', MODEL_PROVIDER_SEGMENT: 'ground', BASETEN_API_KEY: 'b' }, f: fakeFetch(), ledger: new CostLedger() });
+  assert.equal(p.adapterName('segment'), 'baseten-ground');
+});

@@ -28,9 +28,11 @@ test('rule: the full table', () => {
   assert.equal(R(inst(), ans('no'), ans('yes')), C);          // SAM found it and the crop is fine: models disagree
   assert.equal(R({ instances: [] }, ans('yes')), C);         // vision says yes but nothing segmented
   assert.equal(R(inst(), ans('unsure')), C);
-  assert.equal(R(inst(), ans('yes', 0.69), ans('yes')), C);  // below the vision threshold
-  assert.equal(R(inst(), ans('yes', 0.7), ans('yes')), D);   // at the threshold
+  assert.equal(R(inst(), ans('yes', 0.89), ans('yes')), C);  // below the vision threshold (0.9)
+  assert.equal(R(inst(), ans('yes', 0.9), ans('yes')), D);   // at the threshold
   assert.equal(R({ instances: [] }, ans('no', 0.5)), C);
+  assert.equal(R({ instances: [] }, ans('no', 0.89)), C);
+  assert.equal(R({ instances: [] }, ans('no', 0.9)), N);
   assert.equal(R(inst(0.49), ans('yes'), ans('yes')), C);    // below the SAM threshold counts as not found
   assert.equal(R(inst(0.49), ans('no')), N);
   assert.equal(R(inst(null), ans('yes'), ans('yes')), D);    // a missing confidence is accepted, never read as zero

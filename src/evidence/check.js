@@ -28,7 +28,7 @@ export async function runDeliveryCheck({ provider, image, offer, spec, threshold
   try {
     const r = await provider.segment(image, spec.noun_phrase, { mime: 'image/png' });
     frame = r.value.frame;
-    const inst = r.value.instances.map((i) => ({ id: i.id, box: i.box, confidence: i.confidence, area_px: i.areaPx, mask: i.mask }));
+    const inst = r.value.instances.map((i) => ({ id: i.id, box: i.box, confidence: i.confidence, area_px: i.areaPx ?? null, mask: i.mask ?? null }));
     seg = { instances: inst.map(({ mask: _m, ...rest }) => rest), raw_output: r.value.rawOutput, frame, phrase: spec.noun_phrase, image_sha256: sha(image), model: modelOf(r.meta), diagnostics: r.value.diagnostics };
     best = inst.filter((i) => i.confidence === null || i.confidence >= thresholds.segMinConfidence).sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))[0] ?? null;
   } catch (e) { seg = { error: errText(e), phrase: spec.noun_phrase, image_sha256: sha(image) }; }

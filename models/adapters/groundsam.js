@@ -11,6 +11,7 @@ import { ProviderError, unsupported } from '../errors.js';
 import { request, parseJson } from '../http.js';
 
 const NAME = 'baseten+modal';
+const NAME_GROUND_ONLY = 'baseten-ground';
 export const GROUND_SCHEMA = {
   type: 'object', additionalProperties: false, required: ['found', 'boxes'],
   properties: { found: { type: 'boolean' }, boxes: { type: 'array', maxItems: 5, items: { type: 'object', additionalProperties: false, required: ['x1', 'y1', 'x2', 'y2'], properties: { x1: { type: 'number' }, y1: { type: 'number' }, x2: { type: 'number' }, y2: { type: 'number' } } } } },
@@ -30,19 +31,22 @@ export function cleanBoxes(boxes, w, h) {
   return out;
 }
 
-export function createGroundSamAdapter({ ground, url, token, f = globalThis.fetch, timeoutMs = 120_000 }) {
-  if (!url) throw new ProviderError('config', 'MODAL_SAM2_URL is not set', { provider: NAME });
+// maskless: path C. No SAM at all: the boxes come from Muse Spark Open only and instances carry no mask (mask null, areaPx null, confidence null). The README must
+// then say "vision grounding", never "segmentation".
+export function createGroundSamAdapter({ ground, url, token, f = globalThis.fetch, timeoutMs = 120_000, maskless = false }) {
+  if (!url && !maskless) throw new ProviderError('config', 'MODAL_SAM2_URL is not set', { provider: NAME });
   const no = (job) => async () => { throw unsupported(NAME, job); };
   return {
-    name: NAME,
+    name: maskless ? NAME_GROUND_ONLY : NAME,
     async segment(image, phrase, { mime = 'image/png' } = {}) {
       const { width: w, height: h } = await sharp(image).metadata();
       const g = await ground.vision(image, groundQuestion(w, h, phrase), { mime, schema: GROUND_SCHEMA, job: 'ground' });
       const ans = g.value;
       if (typeof ans.found !== 'boolean' || !Array.isArray(ans.boxes)) throw new ProviderError('parse', 'grounding answer has no found/boxes', { provider: NAME, job: 'segment', body: JSON.stringify(ans).slice(0, 300) });
       const boxes = ans.found ? cleanBoxes(ans.boxes, w, h) : [];
-      const common = { provider: NAME, model: g.meta.model, job: 'segment', usage: g.meta.usage, latencyMs: g.meta.latencyMs, reasoningEffort: g.meta.reasoningEffort, reasoningTokens: g.meta.reasoningTokens, groundJob: 'ground' };
+      const common = { provider: maskless ? NAME_GROUND_ONLY : NAME, model: g.meta.model, job: 'segment', usage: g.meta.usage, latencyMs: g.meta.latencyMs, reasoningEffort: g.meta.reasoningEffort, reasoningTokens: g.meta.reasoningTokens, groundJob: 'ground' };
       if (boxes.length === 0) return { value: { rawOutput: JSON.stringify({ ground: ans, sam: null }), frame: { w, h }, instances: [], diagnostics: ans.found ? [{ severity: 'warning', code: 'no_valid_box', message: 'the grounding model said found but gave no usable box' }] : [] }, meta: { ...common, images: 0 } };
+      if (maskless) return { value: { rawOutput: JSON.stringify({ ground: ans, sam: null }), frame: { w, h }, instances: boxes.map(([x1, y1, x2, y2], i) => ({ id: String(i), box: { x1, y1, x2, y2 }, confidence: null, mask: null, areaPx: null })), diagnostics: [] }, meta: { ...common, images: 0 } };
       const r = await request({ provider: NAME, job: 'segment', url, headers: token ? { authorization: `Bearer ${token}` } : {}, json: { image_b64: Buffer.from(image).toString('base64'), boxes }, timeoutMs, f });
       const j = parseJson(r.text, { provider: NAME, job: 'segment' });
       if (!Array.isArray(j.instances) || j.instances.length !== boxes.length || j.width !== w || j.height !== h) throw new ProviderError('parse', 'the SAM 2.1 endpoint answered something other than one mask per box at the image size', { provider: NAME, job: 'segment', body: r.text.slice(0, 300) });

@@ -12,7 +12,7 @@ export const PRICES = {
 };
 export const BASETEN_PRICES = { inPerM: 1.25, outPerM: 4.25, cachedPerM: 0.15 };
 export function priceCall({ provider, model, usage = {}, audioMs = 0, images = 0 }) {
-  if ((provider === 'baseten' || provider === 'baseten+modal') && /^meta-models\/muse-spark-open/.test(model ?? '')) {
+  if ((provider === 'baseten' || provider === 'baseten+modal' || provider === 'baseten-ground') && /^meta-models\/muse-spark-open/.test(model ?? '')) {
     const i = usage.prompt_tokens, o = usage.completion_tokens, c = usage.prompt_tokens_details?.cached_tokens ?? 0;
     if (!Number.isFinite(i) || !Number.isFinite(o)) return null;
     return ((i - c) * BASETEN_PRICES.inPerM + c * BASETEN_PRICES.cachedPerM + o * BASETEN_PRICES.outPerM) / 1e6;

@@ -1,0 +1,1845 @@
+{
+ "when": "2026-10-29T06:05:26.279Z",
+ "providers": {
+  "segment": "baseten-ground",
+  "vision": "baseten"
+ },
+ "thresholds": {
+  "segMinConfidence": 0.5,
+  "visionMinConfidence": 0.7
+ },
+ "efforts": {
+  "ground": "default",
+  "vision": "default"
+ },
+ "rows": [
+  {
+   "id": "d01",
+   "label": "as_offered",
+   "note": "red mug on pink (catalogue mug-1)",
+   "outcome": "DELIVERED_AS_OFFERED",
+   "code": "match",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "yes"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 168,
+        "y1": 498,
+        "x2": 502,
+        "y2": 838
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":168,\"y1\":498,\"x2\":502,\"y2\":838}]},\"sam\":null}",
+     "frame": {
+      "w": 683,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "509abe8c0edcc2cf9f9d579fb7a5ebfb2b41f63d40eb50bed871eb55635d1801",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10720,
+      "cost_usd": 0.00392595,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "Image shows a glossy red ceramic mug exactly as offered."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7063,
+      "cost_usd": 0.003427,
+      "fixture_provenance": null
+     },
+     "image_sha256": "509abe8c0edcc2cf9f9d579fb7a5ebfb2b41f63d40eb50bed871eb55635d1801"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.97,
+      "reason": "The image shows a glossy red mug with handle consistent with the offered red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 5670,
+      "cost_usd": 0.00258375,
+      "fixture_provenance": null
+     },
+     "image_sha256": "40c23ff81ae62f7111312589186379c22770d730985fadc3187f84716293afd7",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "40c23ff81ae62f7111312589186379c22770d730985fadc3187f84716293afd7"
+     }
+    }
+   },
+   "took_ms": 23576
+  },
+  {
+   "id": "d02",
+   "label": "as_offered",
+   "note": "red mug with coffee (catalogue mug-2)",
+   "outcome": "DELIVERED_AS_OFFERED",
+   "code": "match",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "yes"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 60,
+        "y1": 192,
+        "x2": 875,
+        "y2": 945
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":60,\"y1\":192,\"x2\":875,\"y2\":945}]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 988
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "cdc24171e9d5b4980bf8d95771e04f25b169cf571151a51d2f257854ea2330dd",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 27798,
+      "cost_usd": 0.0033414499999999997,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows a glossy red ceramic mug filled with dark liquid, matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7372,
+      "cost_usd": 0.0027813499999999997,
+      "fixture_provenance": null
+     },
+     "image_sha256": "cdc24171e9d5b4980bf8d95771e04f25b169cf571151a51d2f257854ea2330dd"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "Image clearly shows a glossy red ceramic mug matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8272,
+      "cost_usd": 0.0023931,
+      "fixture_provenance": null
+     },
+     "image_sha256": "9d47e48e271594451250b87f5fed1c63a6a1d0d76536f6c7ff50652e226dd0c3",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "9d47e48e271594451250b87f5fed1c63a6a1d0d76536f6c7ff50652e226dd0c3"
+     }
+    }
+   },
+   "took_ms": 43653
+  },
+  {
+   "id": "d03",
+   "label": "as_offered",
+   "note": "red mug handle on red table (catalogue mug-3)",
+   "outcome": "DELIVERED_AS_OFFERED",
+   "code": "match",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "yes"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 0,
+        "y1": 28,
+        "x2": 700,
+        "y2": 762
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":0,\"y1\":28,\"x2\":700,\"y2\":762}]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 762
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "37f8c314d9981c7adc1b38a2324d7b6ed9d0ec4c93da8f27b2a9d3f6bdcd8204",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8102,
+      "cost_usd": 0.0034665,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The image shows a glossy red ceramic mug on a wooden surface, matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 11009,
+      "cost_usd": 0.00284375,
+      "fixture_provenance": null
+     },
+     "image_sha256": "37f8c314d9981c7adc1b38a2324d7b6ed9d0ec4c93da8f27b2a9d3f6bdcd8204"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The image shows a glossy red ceramic mug with handle, matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6730,
+      "cost_usd": 0.0023511,
+      "fixture_provenance": null
+     },
+     "image_sha256": "755efbf0cc43a71575e7884dfade5b5781f6341a3ffe93345ad0939847373ae4",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "755efbf0cc43a71575e7884dfade5b5781f6341a3ffe93345ad0939847373ae4"
+     }
+    }
+   },
+   "took_ms": 26018
+  },
+  {
+   "id": "d04",
+   "label": "as_offered",
+   "note": "a group of red printed mugs",
+   "outcome": "COULD_NOT_BE_CHECKED",
+   "code": "models_disagree",
+   "facts": {
+    "segFound": 5,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "unsure"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 190,
+        "y1": 305,
+        "x2": 375,
+        "y2": 485
+       },
+       "confidence": null,
+       "area_px": null
+      },
+      {
+       "id": "1",
+       "box": {
+        "x1": 330,
+        "y1": 215,
+        "x2": 485,
+        "y2": 465
+       },
+       "confidence": null,
+       "area_px": null
+      },
+      {
+       "id": "2",
+       "box": {
+        "x1": 395,
+        "y1": 285,
+        "x2": 585,
+        "y2": 475
+       },
+       "confidence": null,
+       "area_px": null
+      },
+      {
+       "id": "3",
+       "box": {
+        "x1": 595,
+        "y1": 245,
+        "x2": 795,
+        "y2": 425
+       },
+       "confidence": null,
+       "area_px": null
+      },
+      {
+       "id": "4",
+       "box": {
+        "x1": 540,
+        "y1": 350,
+        "x2": 830,
+        "y2": 525
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":190,\"y1\":305,\"x2\":375,\"y2\":485},{\"x1\":330,\"y1\":215,\"x2\":485,\"y2\":465},{\"x1\":395,\"y1\":285,\"x2\":585,\"y2\":475},{\"x1\":595,\"y1\":245,\"x2\":795,\"y2\":425},{\"x1\":540,\"y1\":350,\"x2\":830,\"y2\":525}]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 576
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "a292064b51db0d55da31c57b7491c03ab7ff6500ffab98c9aec984868abf5753",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 9761,
+      "cost_usd": 0.00635445,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "red ceramic mugs",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.96,
+      "reason": "Image shows multiple red ceramic mugs with white interiors matching the offered red ceramic mug description."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10171,
+      "cost_usd": 0.003144,
+      "fixture_provenance": null
+     },
+     "image_sha256": "a292064b51db0d55da31c57b7491c03ab7ff6500ffab98c9aec984868abf5753"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "red mug/cup",
+      "observed_colour": "red",
+      "observed_material": null,
+      "matches_offer": "unsure",
+      "violates_must_not": false,
+      "confidence": 0.55,
+      "reason": "Image shows only the lower portion of a red mug/cup with text, colour matches but low resolution and tight crop prevent confirming ceramic material versus plastic."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 5846,
+      "cost_usd": 0.003834,
+      "fixture_provenance": null
+     },
+     "image_sha256": "e9e5aa595b513e5b558cd0c9a47fcdcae52dc147721f51cd073c0138fd41f968",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "e9e5aa595b513e5b558cd0c9a47fcdcae52dc147721f51cd073c0138fd41f968"
+     }
+    }
+   },
+   "took_ms": 25903
+  },
+  {
+   "id": "d05",
+   "label": "not_as_offered",
+   "note": "clear glass tumbler (catalogue glass1)",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 768,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "2d9a00aa9013910b7e192204a3a2daf1a334767f6d007909893ec58bdb4ec968",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 9196,
+      "cost_usd": 0.0022632,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "clear glass footed goblet",
+      "observed_colour": "clear",
+      "observed_material": "glass",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows a clear transparent glass footed vessel, not a red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 4845,
+      "cost_usd": 0.0028676,
+      "fixture_provenance": null
+     },
+     "image_sha256": "2d9a00aa9013910b7e192204a3a2daf1a334767f6d007909893ec58bdb4ec968"
+    },
+    "crop": null
+   },
+   "took_ms": 14110
+  },
+  {
+   "id": "d06",
+   "label": "not_as_offered",
+   "note": "clear glass tumbler (catalogue glass2)",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 768,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "fbee4c77e62933c3a94f600d9b7ffc5536176ae3cae8b92c6a22b134b5514944",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6511,
+      "cost_usd": 0.0023779499999999998,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "clear glass tumbler",
+      "observed_colour": "clear",
+      "observed_material": "glass",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "Image shows a transparent textured glass tumbler, not a red ceramic mug, failing colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 12041,
+      "cost_usd": 0.00251485,
+      "fixture_provenance": null
+     },
+     "image_sha256": "fbee4c77e62933c3a94f600d9b7ffc5536176ae3cae8b92c6a22b134b5514944"
+    },
+    "crop": null
+   },
+   "took_ms": 18620
+  },
+  {
+   "id": "d07",
+   "label": "not_as_offered",
+   "note": "clear glass tumbler (catalogue glass3)",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 768,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "666f61df065b0acb1589e3dbb336c514fbf1f4b6e9321b5cc38798efd999c160",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 25456,
+      "cost_usd": 0.00205015,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "textured glass tumbler",
+      "observed_colour": "clear transparent",
+      "observed_material": "glass",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows a clear transparent textured glass tumbler, not a red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 20591,
+      "cost_usd": 0.00318635,
+      "fixture_provenance": null
+     },
+     "image_sha256": "666f61df065b0acb1589e3dbb336c514fbf1f4b6e9321b5cc38798efd999c160"
+    },
+    "crop": null
+   },
+   "took_ms": 46113
+  },
+  {
+   "id": "d08",
+   "label": "not_as_offered",
+   "note": "white mug with red lettering",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 683,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "1e460ee2e4098213f94be8bc65bd35052012cbbb8419a468873fd2bd186a463c",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8016,
+      "cost_usd": 0.00214095,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The delivered mug is off-white/cream ceramic with red lettering, not a solid red mug, so colour does not match the offer."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6901,
+      "cost_usd": 0.0028686,
+      "fixture_provenance": null
+     },
+     "image_sha256": "1e460ee2e4098213f94be8bc65bd35052012cbbb8419a468873fd2bd186a463c"
+    },
+    "crop": null
+   },
+   "took_ms": 14988
+  },
+  {
+   "id": "d09",
+   "label": "not_as_offered",
+   "note": "white mug with red lettering, other angle",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 683,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "d4b2349825448bf03de16d5e6e785eda8a90dd9adcc20d3dd38cbec24bf0cc8d",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 12235,
+      "cost_usd": 0.0023152,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The mug in the image is white/cream ceramic, not red, so it does not match the offered red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 14807,
+      "cost_usd": 0.0027581,
+      "fixture_provenance": null
+     },
+     "image_sha256": "d4b2349825448bf03de16d5e6e785eda8a90dd9adcc20d3dd38cbec24bf0cc8d"
+    },
+    "crop": null
+   },
+   "took_ms": 27088
+  },
+  {
+   "id": "d10",
+   "label": "not_as_offered",
+   "note": "white mug beside a croissant",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 642
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "53961eae9e1ae838862cf20c7d389fc2558a0d815bf595fb4036be15be7a1ba9",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 5394,
+      "cost_usd": 0.00215445,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "mug",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The mug in the image is white, not red, so it does not match the offered red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7887,
+      "cost_usd": 0.0029500999999999998,
+      "fixture_provenance": null
+     },
+     "image_sha256": "53961eae9e1ae838862cf20c7d389fc2558a0d815bf595fb4036be15be7a1ba9"
+    },
+    "crop": null
+   },
+   "took_ms": 13323
+  },
+  {
+   "id": "d11",
+   "label": "not_as_offered",
+   "note": "white cup of black coffee",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 725
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "3cf6d7f64ab5df052a957f6714b6d3bfd731d1771c5b43a2d5faf74b43b5dee2",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8528,
+      "cost_usd": 0.0021359499999999997,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows a white ceramic mug, which does not match the offered red ceramic mug due to colour mismatch."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8608,
+      "cost_usd": 0.00328435,
+      "fixture_provenance": null
+     },
+     "image_sha256": "3cf6d7f64ab5df052a957f6714b6d3bfd731d1771c5b43a2d5faf74b43b5dee2"
+    },
+    "crop": null
+   },
+   "took_ms": 17228
+  },
+  {
+   "id": "d12",
+   "label": "not_as_offered",
+   "note": "white teapot and cups",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 960,
+      "h": 640
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "81e0e15c4b1a55b2ab7278ef74e5f18eb9aa2646aa2fca3d514715557c34fc74",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6586,
+      "cost_usd": 0.00196395,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "white mugs and teapot",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows white ceramic mugs and a teapot, not a red ceramic mug, so colour and object do not match the offer."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6098,
+      "cost_usd": 0.0027364499999999996,
+      "fixture_provenance": null
+     },
+     "image_sha256": "81e0e15c4b1a55b2ab7278ef74e5f18eb9aa2646aa2fca3d514715557c34fc74"
+    },
+    "crop": null
+   },
+   "took_ms": 12758
+  },
+  {
+   "id": "d13",
+   "label": "not_as_offered",
+   "note": "white mugs on their sides",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 960,
+      "h": 640
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "3a41b582a49751a6570089079b82e98962e3005080117d42950689a0a6ec7b8f",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6660,
+      "cost_usd": 0.00195545,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mugs with tail-shaped handles",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows five white ceramic mugs, not a red mug, so colour does not match the offer."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8263,
+      "cost_usd": 0.00288835,
+      "fixture_provenance": null
+     },
+     "image_sha256": "3a41b582a49751a6570089079b82e98962e3005080117d42950689a0a6ec7b8f"
+    },
+    "crop": null
+   },
+   "took_ms": 15003
+  },
+  {
+   "id": "d14",
+   "label": "not_as_offered",
+   "note": "white textured mugs",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 960,
+      "h": 640
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "9149840958be1a2f3c0059cf207ca03e239c946b2eecfea11db3c1a5c81cb341",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6654,
+      "cost_usd": 0.0018699,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "four ceramic mugs",
+      "observed_colour": "white",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows white ceramic mugs, not the red ceramic mug described in the offer."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7768,
+      "cost_usd": 0.0026716,
+      "fixture_provenance": null
+     },
+     "image_sha256": "9149840958be1a2f3c0059cf207ca03e239c946b2eecfea11db3c1a5c81cb341"
+    },
+    "crop": null
+   },
+   "took_ms": 14496
+  },
+  {
+   "id": "d15",
+   "label": "not_as_offered",
+   "note": "white enamel mug with a skull print",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 576
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "51880b6774e3e11d0b3e0547c856bca99c7e70854b9dc3121a8c6ba26d000975",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7152,
+      "cost_usd": 0.0017979,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "enamel mug",
+      "observed_colour": "white",
+      "observed_material": "enamel",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The mug in the image is white with a black rim and enamel/metal construction, not a red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10522,
+      "cost_usd": 0.00279385,
+      "fixture_provenance": null
+     },
+     "image_sha256": "51880b6774e3e11d0b3e0547c856bca99c7e70854b9dc3121a8c6ba26d000975"
+    },
+    "crop": null
+   },
+   "took_ms": 17742
+  },
+  {
+   "id": "d16",
+   "label": "not_as_offered",
+   "note": "black and gold insulated mug",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 768,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "c0834fadf757314ee2e62a20cb408df5a52e36106824ee0235cb3401a568fb0f",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 26931,
+      "cost_usd": 0.0021649,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "double-handled mug",
+      "observed_colour": "black and olive-green",
+      "observed_material": "plastic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The delivered mug is black and olive-green plastic with two handles, not a red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7774,
+      "cost_usd": 0.00292285,
+      "fixture_provenance": null
+     },
+     "image_sha256": "c0834fadf757314ee2e62a20cb408df5a52e36106824ee0235cb3401a568fb0f"
+    },
+    "crop": null
+   },
+   "took_ms": 34799
+  },
+  {
+   "id": "d17",
+   "label": "not_as_offered",
+   "note": "porcelain mug with pink fish decoration",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 946,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "33fb377c3fb50576dc25c5ddec27acf0f6b3deaac12bda40fc4105042e3527f9",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6096,
+      "cost_usd": 0.0028247,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "white with multicolour decoration",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The image shows a white ceramic mug with pink and grey fish and floral decoration, not a solid red mug, so colour does not match the offer."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8067,
+      "cost_usd": 0.00333135,
+      "fixture_provenance": null
+     },
+     "image_sha256": "33fb377c3fb50576dc25c5ddec27acf0f6b3deaac12bda40fc4105042e3527f9"
+    },
+    "crop": null
+   },
+   "took_ms": 14252
+  },
+  {
+   "id": "d18",
+   "label": "not_as_offered",
+   "note": "white teacup with a red triangle print",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 682
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "e9e3078a1f5486c4a2b4e4e26e0635c6f0b7cddc046200196b50566334ddb69b",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6827,
+      "cost_usd": 0.0024002,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "off-white / cream with small red and black pattern",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The mug in the image is predominantly off-white/cream with only small red accents, not a solid red mug as offered."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6184,
+      "cost_usd": 0.00272835,
+      "fixture_provenance": null
+     },
+     "image_sha256": "e9e3078a1f5486c4a2b4e4e26e0635c6f0b7cddc046200196b50566334ddb69b"
+    },
+    "crop": null
+   },
+   "took_ms": 13048
+  },
+  {
+   "id": "d19",
+   "label": "not_as_offered",
+   "note": "black espresso cup on a saucer",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 768
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "b6c51fc8ca1deb47c9a5a7a89ca87c0e07a43b2c8a87a1b42c021527eb639b38",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6557,
+      "cost_usd": 0.0022632,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "black ceramic coffee cup on saucer with glass server",
+      "observed_colour": "black",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image contains a black ceramic cup with white interior on a saucer, not a red ceramic mug as offered."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 9674,
+      "cost_usd": 0.0030333499999999998,
+      "fixture_provenance": null
+     },
+     "image_sha256": "b6c51fc8ca1deb47c9a5a7a89ca87c0e07a43b2c8a87a1b42c021527eb639b38"
+    },
+    "crop": null
+   },
+   "took_ms": 16340
+  },
+  {
+   "id": "d20",
+   "label": "not_as_offered",
+   "note": "tall glass of water",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 700,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "d92a7d6fa8f595ae715771207500b7d8f932bbf16ba88ce8c54b7b7035117c76",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7386,
+      "cost_usd": 0.0020599499999999996,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "glass tumbler with water",
+      "observed_colour": "clear",
+      "observed_material": "glass",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 1,
+      "reason": "The image shows a transparent glass tumbler, not a red ceramic mug, failing object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7816,
+      "cost_usd": 0.0026260999999999997,
+      "fixture_provenance": null
+     },
+     "image_sha256": "d92a7d6fa8f595ae715771207500b7d8f932bbf16ba88ce8c54b7b7035117c76"
+    },
+    "crop": null
+   },
+   "took_ms": 15293
+  },
+  {
+   "id": "d21",
+   "label": "not_as_offered",
+   "note": "amber and blue glass vase",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 883,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "9717e5f406eb58e12e1a01c8d57bd924cfd0556d1f4677bdce082d2a3bcb4400",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8019,
+      "cost_usd": 0.00238795,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "glass vase",
+      "observed_colour": "yellow with blue",
+      "observed_material": "glass",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.99,
+      "reason": "The image shows a translucent yellow glass vessel with blue swirls, not a red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 20783,
+      "cost_usd": 0.0030136,
+      "fixture_provenance": null
+     },
+     "image_sha256": "9717e5f406eb58e12e1a01c8d57bd924cfd0556d1f4677bdce082d2a3bcb4400"
+    },
+    "crop": null
+   },
+   "took_ms": 28902
+  },
+  {
+   "id": "d22",
+   "label": "not_as_offered",
+   "note": "cream teacup with pink roses",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 768
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "bdf17a075913e3c8e9d3be27e20860b9ffbd3c5865f0be8fa172c72d809a9372",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 4710,
+      "cost_usd": 0.00248475,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "pink with floral pattern",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.96,
+      "reason": "The object is a ceramic mug but its colour is pale pink with floral decoration, not solid red as offered."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7156,
+      "cost_usd": 0.0033988499999999997,
+      "fixture_provenance": null
+     },
+     "image_sha256": "bdf17a075913e3c8e9d3be27e20860b9ffbd3c5865f0be8fa172c72d809a9372"
+    },
+    "crop": null
+   },
+   "took_ms": 11925
+  },
+  {
+   "id": "d23",
+   "label": "unclear",
+   "note": "red cup with latte art, handle not visible",
+   "outcome": "COULD_NOT_BE_CHECKED",
+   "code": "models_disagree",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "unsure"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 187,
+        "y1": 521,
+        "x2": 385,
+        "y2": 620
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":187,\"y1\":521,\"x2\":385,\"y2\":620}]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 678
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "d55142b8d9b633aafdde714655bf37675ccad7ca37a2f84f475893a6893b4c45",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7050,
+      "cost_usd": 0.00401095,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "red ceramic mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.97,
+      "reason": "The image clearly shows a red ceramic mug with latte art on a counter, matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6919,
+      "cost_usd": 0.0028728499999999997,
+      "fixture_provenance": null
+     },
+     "image_sha256": "d55142b8d9b633aafdde714655bf37675ccad7ca37a2f84f475893a6893b4c45"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "partial curved fragment",
+      "observed_colour": "dark red",
+      "observed_material": null,
+      "matches_offer": "unsure",
+      "violates_must_not": false,
+      "confidence": 0.25,
+      "reason": "Image is an extreme dark close-crop showing only a reddish curved edge with shadow, insufficient to confirm object is a mug or material is ceramic."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 5402,
+      "cost_usd": 0.0033121,
+      "fixture_provenance": null
+     },
+     "image_sha256": "3548196fcc8ac54dc9c12a5f9773c471f0a921ed7e5fbefeded6adf9796f11f6",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "3548196fcc8ac54dc9c12a5f9773c471f0a921ed7e5fbefeded6adf9796f11f6"
+     }
+    }
+   },
+   "took_ms": 19457
+  },
+  {
+   "id": "d24",
+   "label": "unclear",
+   "note": "person drinking from a red mug, mostly hidden",
+   "outcome": "DELIVERED_AS_OFFERED",
+   "code": "match",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "yes"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 268,
+        "y1": 320,
+        "x2": 455,
+        "y2": 475
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":268,\"y1\":320,\"x2\":455,\"y2\":475}]},\"sam\":null}",
+     "frame": {
+      "w": 731,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "8ee1c8805148669628a1c5bf8f62fd1f28aea7941e4875a21e69f63bf6449ff5",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10696,
+      "cost_usd": 0.0039904499999999996,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "red ceramic mug held by person",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.96,
+      "reason": "The image contains a red ceramic mug with visible handle and interior, matching the offered object, colour and material despite a person holding it."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10224,
+      "cost_usd": 0.00326035,
+      "fixture_provenance": null
+     },
+     "image_sha256": "8ee1c8805148669628a1c5bf8f62fd1f28aea7941e4875a21e69f63bf6449ff5"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.9,
+      "reason": "The image shows a red mug with white interior being drunk from, matching the offered red ceramic mug in object, colour and apparent material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 4634,
+      "cost_usd": 0.00348775,
+      "fixture_provenance": null
+     },
+     "image_sha256": "b1679a3a5a275037bd67d787e00ed56fd2b14ab8769ea8fe0a6fc98a4e424f4a",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "b1679a3a5a275037bd67d787e00ed56fd2b14ab8769ea8fe0a6fc98a4e424f4a"
+     }
+    }
+   },
+   "took_ms": 25668
+  },
+  {
+   "id": "d25",
+   "label": "unclear",
+   "note": "blurred red enamel mug in a breakfast scene",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 683
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "662d1f9bd45e8c2240a405138be5c3f95a57669180907060a44373c0f6ff3f5b",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 9078,
+      "cost_usd": 0.0036666999999999997,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "mug",
+      "observed_colour": "red",
+      "observed_material": "enamel metal",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.88,
+      "reason": "The mug is red but its black-rimmed enamel/metal construction does not match the offered ceramic material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7981,
+      "cost_usd": 0.00296635,
+      "fixture_provenance": null
+     },
+     "image_sha256": "662d1f9bd45e8c2240a405138be5c3f95a57669180907060a44373c0f6ff3f5b"
+    },
+    "crop": null
+   },
+   "took_ms": 17149
+  },
+  {
+   "id": "d26",
+   "label": "unclear",
+   "note": "red coffee cup on a saucer (cup, not mug)",
+   "outcome": "COULD_NOT_BE_CHECKED",
+   "code": "models_disagree",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": "yes"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 204,
+        "y1": 52,
+        "x2": 957,
+        "y2": 525
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":204,\"y1\":52,\"x2\":957,\"y2\":525}]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 682
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "7a64e07c0c0882ede29114b3ffbee41eee20a9130e493cab264ad850fa8dd353",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7752,
+      "cost_usd": 0.0047717,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic teacup with saucer",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.88,
+      "reason": "Image shows a low, wide-handled teacup on a saucer rather than a mug, so object type does not match despite red colour and ceramic material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10548,
+      "cost_usd": 0.0034126,
+      "fixture_provenance": null
+     },
+     "image_sha256": "7a64e07c0c0882ede29114b3ffbee41eee20a9130e493cab264ad850fa8dd353"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "ceramic mug / teacup",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.93,
+      "reason": "Image shows a glossy red ceramic mug/cup with handle containing dark liquid, matching the offered red ceramic mug in object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 10661,
+      "cost_usd": 0.0040126,
+      "fixture_provenance": null
+     },
+     "image_sha256": "833b011491d6d3639d0a473220222f410962f08a5b3a6e8ac3a3c0afec29ee61",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "833b011491d6d3639d0a473220222f410962f08a5b3a6e8ac3a3c0afec29ee61"
+     }
+    }
+   },
+   "took_ms": 29073
+  },
+  {
+   "id": "d27",
+   "label": "unclear",
+   "note": "red espresso cup on a saucer with lettering",
+   "outcome": "DELIVERED_AS_OFFERED",
+   "code": "match",
+   "facts": {
+    "segFound": 1,
+    "segBestConfidence": null,
+    "full": "yes",
+    "crop": "yes"
+   },
+   "checks": {
+    "seg": {
+     "instances": [
+      {
+       "id": "0",
+       "box": {
+        "x1": 218,
+        "y1": 124,
+        "x2": 682,
+        "y2": 642
+       },
+       "confidence": null,
+       "area_px": null
+      }
+     ],
+     "raw_output": "{\"ground\":{\"found\":true,\"boxes\":[{\"x1\":218,\"y1\":124,\"x2\":682,\"y2\":642}]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 1024
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "8e558132a9dd7b3c6499eb7b87309aab7f6a6203cb954b7eea1d922ba661ee85",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 9089,
+      "cost_usd": 0.0033897,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "red ceramic mug with saucer",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The image clearly shows a glossy red ceramic mug on a saucer, matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7425,
+      "cost_usd": 0.0035041,
+      "fixture_provenance": null
+     },
+     "image_sha256": "8e558132a9dd7b3c6499eb7b87309aab7f6a6203cb954b7eea1d922ba661ee85"
+    },
+    "crop": {
+     "answer": {
+      "observed_object": "ceramic mug",
+      "observed_colour": "red",
+      "observed_material": "ceramic",
+      "matches_offer": "yes",
+      "violates_must_not": false,
+      "confidence": 0.98,
+      "reason": "The image clearly shows a red ceramic mug with handle on a saucer, matching the offered object, colour and material."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 8626,
+      "cost_usd": 0.00243635,
+      "fixture_provenance": null
+     },
+     "image_sha256": "2dc14a1a99c9588229bf5e87b02ce54f2ff28a907fb7e13389310796850560d3",
+     "crop_of": {
+      "instance_id": "0",
+      "crop_sha256": "2dc14a1a99c9588229bf5e87b02ce54f2ff28a907fb7e13389310796850560d3"
+     }
+    }
+   },
+   "took_ms": 25300
+  },
+  {
+   "id": "d28",
+   "label": "unclear",
+   "note": "orange-red cup tipped over coffee beans",
+   "outcome": "NOT_AS_OFFERED",
+   "code": "mismatch_no_object",
+   "facts": {
+    "segFound": 0,
+    "segBestConfidence": null,
+    "full": "no",
+    "crop": null
+   },
+   "checks": {
+    "seg": {
+     "instances": [],
+     "raw_output": "{\"ground\":{\"found\":false,\"boxes\":[]},\"sam\":null}",
+     "frame": {
+      "w": 1024,
+      "h": 682
+     },
+     "phrase": "red ceramic mug",
+     "image_sha256": "cf36046470b5b5306a120e76b0d0fb0514ec54b90bb454f96378c3a19613576d",
+     "model": {
+      "provider": "baseten-ground",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 6888,
+      "cost_usd": 0.00336015,
+      "fixture_provenance": null
+     },
+     "diagnostics": []
+    },
+    "full": {
+     "answer": {
+      "observed_object": "ceramic cup with saucer",
+      "observed_colour": "orange",
+      "observed_material": "ceramic",
+      "matches_offer": "no",
+      "violates_must_not": false,
+      "confidence": 0.92,
+      "reason": "The mug/cup is orange/burnt-orange, not red, so colour does not match the offered red ceramic mug."
+     },
+     "model": {
+      "provider": "baseten",
+      "model": "meta-models/muse-spark-open-1026",
+      "latency_ms": 7260,
+      "cost_usd": 0.0028346,
+      "fixture_provenance": null
+     },
+     "image_sha256": "cf36046470b5b5306a120e76b0d0fb0514ec54b90bb454f96378c3a19613576d"
+    },
+    "crop": null
+   },
+   "took_ms": 14242
+  }
+ ]
+}
