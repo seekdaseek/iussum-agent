@@ -10,7 +10,7 @@ import { loadCatalog, createShop } from './shop.js';
 
 export const SHOP_DEFS = [
   { id: 'kiln', name: 'Kiln & Co', aliases: ['Kiln and Co', 'Kiln'], keypair: 'seller' },
-  { id: 'mugworks', name: 'Mugworks', aliases: [], keypair: 'seller2' },
+  { id: 'mugworks', name: 'Mugworks', aliases: ['Mug works', 'Mudworks'], keypair: 'seller2' },
   { id: 'glazed', name: 'Glazed Studio', aliases: ['Glazed'], keypair: 'seller3' },
 ];
 

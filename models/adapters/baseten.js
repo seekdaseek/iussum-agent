@@ -19,6 +19,7 @@ export const BASETEN_MODEL = 'meta-models/muse-spark-open-1026';
 export const DEFAULT_EFFORT = { transcribe: 'low', compileMandate: 'low', vision: 'medium', agentStep: 'low', ground: 'medium' };
 export const DEFAULT_MAX_TOKENS = { transcribe: 3000, compileMandate: 4000, vision: 6000, agentStep: 4000, ground: 6000 };
 const EFFORTS = ['low', 'medium', 'high', 'xhigh'];
+export const NO_AUDIO = /(?:no audio|audio file|(?:can'?t|cannot|unable to|don'?t have (?:the ability to|access to)) (?:hear|listen|access|process)|did not (?:receive|detect)|not detect|no (?:speech|recording)|didn'?t (?:receive|come through))/i;
 
 export function createBasetenAdapter({ apiKey, baseUrl = 'https://inference.baseten.co/v1', model = BASETEN_MODEL, f = globalThis.fetch, timeoutMs = 180_000, effort = {}, maxTokens = {} } = {}) {
   if (!apiKey) throw new ProviderError('config', 'BASETEN_API_KEY is not set', { provider: NAME });
@@ -50,10 +51,19 @@ export function createBasetenAdapter({ apiKey, baseUrl = 'https://inference.base
   return {
     name: NAME,
     // keywords: names that may be spoken (shop names), given to the model as a hint because it mishears them ("Kiln" -> "Kill")
+    // Observed 2026-10-29: on about 1 call in 10 the model answers "no audio file was detected" for audio it transcribed perfectly on the previous call (the models list
+    // only declares text + image input). That answer is recognised and retried (twice at most), then reported as an error: it is never returned as a transcript.
     async transcribe(audio, { mime = 'audio/wav', keywords = [] } = {}) {
       const hint = keywords.length ? ` Names that may be spoken: ${keywords.join(', ')}.` : '';
-      const { choice, usage, r } = await chat('transcribe', [{ role: 'user', content: [{ type: 'text', text: `Transcribe this audio word for word. Answer with the transcript only, no commentary.${hint}` }, { type: 'audio_url', audio_url: { url: dataUrl(audio, mime) } }] }]);
-      return wrap('transcribe', { text: contentOf('transcribe', choice, r).trim(), audioDurationMs: null }, r, usage);
+      let usedTokens = null, last = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const { choice, usage, r } = await chat('transcribe', [{ role: 'user', content: [{ type: 'text', text: `Transcribe this audio word for word. Answer with the transcript only, no commentary.${hint}` }, { type: 'audio_url', audio_url: { url: dataUrl(audio, mime) } }] }]);
+        const text = contentOf('transcribe', choice, r).trim();
+        usedTokens = { ...(usage ?? {}), prompt_tokens: (usedTokens?.prompt_tokens ?? 0) + (usage?.prompt_tokens ?? 0), completion_tokens: (usedTokens?.completion_tokens ?? 0) + (usage?.completion_tokens ?? 0) };
+        if (!NO_AUDIO.test(text)) return wrap('transcribe', { text, audioDurationMs: null }, r, usedTokens, { attempts: attempt });
+        last = text;
+      }
+      throw new ProviderError('refusal', `the model said it received no audio three times: ${last.slice(0, 160)}`, { provider: NAME, job: 'transcribe' });
     },
     async compileMandate(text, { system, schema }) {
       const { choice, usage, r } = await chat('compileMandate', [{ role: 'system', content: system + asking(schema) }, { role: 'user', content: text }], { json: true });

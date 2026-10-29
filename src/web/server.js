@@ -52,7 +52,8 @@ export function createWebApp(cfg) {
     const audio = Buffer.from(b64, 'base64');
     if (audio.length < 44 || audio.subarray(0, 4).toString() !== 'RIFF' || audio.subarray(8, 12).toString() !== 'WAVE') return res.status(400).json({ error: 'not a WAV file' });
     if (!daily.canCallModel().ok) return res.status(503).json({ error: 'daily_model_budget', message: 'The demo has used its model budget for today.' });
-    try { const r = await provider.transcribe(audio); daily.addModel(r.meta.costUsd); res.json({ text: r.value.text, model: { provider: r.meta.provider, model: r.meta.model } }); }
+    const keywords = cfg.ctxBase.shops.flatMap((x) => [x.name, ...(x.aliases ?? [])]); // the model mishears shop names ("Kiln" -> "Kill"); the names are a hint
+    try { const r = await provider.transcribe(audio, { keywords }); daily.addModel(r.meta.costUsd); res.json({ text: r.value.text, model: { provider: r.meta.provider, model: r.meta.model } }); }
     catch (e) { res.status(502).json({ error: e.kind ?? 'provider_error', message: String(e.message).slice(0, 300) }); }
   });
 

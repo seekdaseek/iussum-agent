@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createProvider } from '../models/provider.js';
 import { createMetaAdapter, readSamResult } from '../models/adapters/meta.js';
-import { createBasetenAdapter } from '../models/adapters/baseten.js';
+import { createBasetenAdapter, NO_AUDIO } from '../models/adapters/baseten.js';
 import { createModalAdapter } from '../models/adapters/modal.js';
 import { createFixtureAdapter, fixtureKey } from '../models/adapters/fixture.js';
 import { withRecording } from '../models/record.js';
@@ -250,4 +250,15 @@ test('agentStep: tool calls are parsed from an OpenAI-style answer; bad argument
   const b = await createBasetenAdapter({ apiKey: 'b', f: fakeFetch(json({ choices: [{ finish_reason: 'stop', message: { content: 'done' } }] })) }).agentStep([], tools);
   assert.deepEqual(b.value, { content: 'done', tool_calls: [], finish_reason: 'stop' });
   await assert.rejects(createModalAdapter({ url: 'u' }).agentStep([], tools), { kind: 'unsupported' });
+});
+
+test('baseten transcribe: a "no audio" answer is retried and never returned as a transcript; three in a row is an error; usage adds up', async () => {
+  const say = (t) => json({ choices: [{ finish_reason: 'stop', message: { content: t } }], usage: { prompt_tokens: 100, completion_tokens: 10 } });
+  const f = fakeFetch(say("No audio file was detected in your message, so I can't provide a transcript."), say('Buy me three photos of a red ceramic mug.'));
+  const r = await createBasetenAdapter({ apiKey: 'b', f }).transcribe(Buffer.from('RIFF'), { keywords: ['Kiln & Co', 'Mugworks'] });
+  assert.equal(r.value.text, 'Buy me three photos of a red ceramic mug.'); assert.equal(r.meta.attempts, 2); assert.equal(r.meta.usage.prompt_tokens, 200);
+  assert.match(f.calls[0].body.messages[0].content[0].text, /Names that may be spoken: Kiln & Co, Mugworks/);
+  const never = fakeFetch(say("I don't have access to any audio file to transcribe."), say('No audio file was detected.'), say("I can't hear any recording."));
+  await assert.rejects(createBasetenAdapter({ apiKey: 'b', f: never }).transcribe(Buffer.from('RIFF')), { kind: 'refusal' });
+  for (const ok of ['Buy a mug, 2 dollars total, from Kiln.', 'Get me an audio cable photo, one dollar.']) assert.equal(NO_AUDIO.test(ok), false, ok);
 });
