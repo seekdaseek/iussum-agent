@@ -71,6 +71,23 @@ DEV_STUBS=1 node scripts/serve.mjs         # the live page with a red "no model 
 
 With a Baseten key (`BASETEN_API_KEY` in `.env`): `node scripts/build-real-catalog.mjs`, then `MODEL_PROVIDER=baseten MODEL_PROVIDER_SEGMENT=groundsam node --env-file=.env scripts/serve.mjs` and `node scripts/run-demo.mjs` (`--control` for the run with the delivery check off). Provider notes: `models/PROVIDERS.md`.
 
+## Evaluation: segmentation, SAM 3 against SAM 2.1
+
+Both were run on the same 28 hand-labelled images (`eval/delivery-labels.json`: 4 as offered, 18 not as offered, 6 unclear; the offer is "Red ceramic mug"), with the same Muse Spark Open vision judgement, the same rule and thresholds, on Modal CPU (4 cores; Modal asks for a payment method before it runs any GPU function). Labels were written before any model saw the images. Raw answers per image are in `eval/results/`.
+
+| | **SAM 2.1** (shipped): Muse Spark Open box, then `facebook/sam2.1-hiera-large` | SAM 3: `facebook/sam3`, noun phrase in |
+|---|---|---|
+| as offered (4) → delivered / not as offered / could not be checked | **4** / 0 / 0 | **4** / 0 / 0 |
+| not as offered (18) → delivered / not as offered / could not be checked | 0 / **18** / 0 | 0 / **18** / 0 |
+| unclear (6) → delivered / not as offered / could not be checked | 2 / 1 / 3 | 3 / 1 / 2 |
+| false pass, false accusation, errors | 0, 0, 0 | 0, 0, 0 |
+| latency of one segmentation call, warm / cold | about 9 s / 28 s | about 25 s / 65 s |
+| time per image through the whole check, 4 in parallel | about 30 s | about 60 s |
+| Modal cost of the 28-image run | about $0.05 | about $0.16 |
+| needs gated weights | no (Apache-2.0) | yes (access granted to the owner of this entry) |
+
+Reading: the two tie on the 22 clear images. On the six ambiguous ones SAM 3 passes one more (a mug mostly hidden behind a person) where SAM 2.1 stays at "could not be checked", which is the safer answer; that is one image, not a finding. SAM 2.1 is half the latency and a third of the cost on CPU and needs no gated weights, so it stays the shipped path. 28 images and one labeller make this a sanity check, not a benchmark. SAM 3.1 was never evaluated: access was never granted.
+
 ## Limits worth knowing
 
 - The refund is paid from a float wallet that stands in for the seller's own refund key, as in the earlier demo. It is a devnet simplification.
