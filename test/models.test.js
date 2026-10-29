@@ -260,5 +260,9 @@ test('baseten transcribe: a "no audio" answer is retried and never returned as a
   assert.match(f.calls[0].body.messages[0].content[0].text, /Names that may be spoken: Kiln & Co, Mugworks/);
   const never = fakeFetch(say("I don't have access to any audio file to transcribe."), say('No audio file was detected.'), say("I can't hear any recording."));
   await assert.rejects(createBasetenAdapter({ apiKey: 'b', f: never }).transcribe(Buffer.from('RIFF')), { kind: 'refusal' });
+  const echo = fakeFetch(say('Buy me three photos of a mug, only from Kiln & Co, Kiln and Co, Kiln, Mugworks, Mug works, Mudworks, Glazed Studio, Glazed.'), say('Buy me three photos of a mug, only from Kiln & Co.'));
+  const e = await createBasetenAdapter({ apiKey: 'b', f: echo }).transcribe(Buffer.from('RIFF'), { keywords: ['Kiln & Co', 'Kiln and Co', 'Kiln', 'Mugworks', 'Mug works', 'Mudworks', 'Glazed Studio', 'Glazed'] });
+  assert.equal(e.value.text, 'Buy me three photos of a mug, only from Kiln & Co.'); assert.equal(e.meta.attempts, 2);
+  assert.doesNotMatch(echo.calls[1].body.messages[0].content[0].text, /Names that may be spoken/);
   for (const ok of ['Buy a mug, 2 dollars total, from Kiln.', 'Get me an audio cable photo, one dollar.']) assert.equal(NO_AUDIO.test(ok), false, ok);
 });

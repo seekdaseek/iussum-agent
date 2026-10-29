@@ -54,12 +54,15 @@ export function createBasetenAdapter({ apiKey, baseUrl = 'https://inference.base
     // Observed 2026-10-29: on about 1 call in 10 the model answers "no audio file was detected" for audio it transcribed perfectly on the previous call (the models list
     // only declares text + image input). That answer is recognised and retried (twice at most), then reported as an error: it is never returned as a transcript.
     async transcribe(audio, { mime = 'audio/wav', keywords = [] } = {}) {
-      const hint = keywords.length ? ` Names that may be spoken: ${keywords.join(', ')}.` : '';
+      let hint = keywords.length ? ` Names that may be spoken: ${keywords.join(', ')}.` : '';
+      // Observed 2026-10-29: on audio with trailing silence the model sometimes answers with the hint list itself ("Kiln & Co, Kiln and Co, Kiln, Mugworks, ..."). Such an echo is never a transcript: retried without the hint.
+      const echoed = (t) => keywords.length >= 4 && keywords.filter((k) => t.toLowerCase().includes(k.toLowerCase())).length >= Math.ceil(keywords.length * 0.75);
       let usedTokens = null, last = null;
       for (let attempt = 1; attempt <= 3; attempt++) {
         const { choice, usage, r } = await chat('transcribe', [{ role: 'user', content: [{ type: 'text', text: `Transcribe this audio word for word. Answer with the transcript only, no commentary.${hint}` }, { type: 'audio_url', audio_url: { url: dataUrl(audio, mime) } }] }]);
         const text = contentOf('transcribe', choice, r).trim();
         usedTokens = { ...(usage ?? {}), prompt_tokens: (usedTokens?.prompt_tokens ?? 0) + (usage?.prompt_tokens ?? 0), completion_tokens: (usedTokens?.completion_tokens ?? 0) + (usage?.completion_tokens ?? 0) };
+        if (hint && echoed(text)) { hint = ''; last = text; continue; }
         if (!NO_AUDIO.test(text)) return wrap('transcribe', { text, audioDurationMs: null }, r, usedTokens, { attempts: attempt });
         last = text;
       }
