@@ -71,10 +71,32 @@ const T0 = () => new Date().toLocaleTimeString([], { hour12: false });
 const LABEL = {
   grant_start: () => 'Signing the grant on Solana devnet…', grant_done: (e) => ['Grant confirmed on chain', e.url], purchase: (e) => `Paid ${e.shop} for ${e.sku} (${(Number(e.amount) / 1e6).toFixed(2)} USDC)`,
   refused: (e) => `The permission refused a purchase at ${e.shop}: ${e.reason}`, shopping_done: (e) => `Shopping finished (${e.purchases} paid)`, delivery_received: (e) => `Received photo ${e.n} from ${e.shop}`,
-  check_start: (e) => `Checking photo ${e.n}: segmentation + vision…`, check_done: (e) => `Photo ${e.n}: ${e.outcome.replaceAll('_', ' ').toLowerCase()}`, dispute_start: (e) => `Filing a dispute for photo ${e.n} with the evidence record…`,
+  check_start: (e) => `Checking photo ${e.n}: segmentation + vision…`, check_done: (e) => `Photo ${e.n}: ${e.outcome.replaceAll('_', ' ').toLowerCase()}${e.reasons?.length ? `. ${e.reasons.join(' ')}` : ''}`, dispute_start: (e) => `Filing a dispute for photo ${e.n} with the evidence record…`,
   verdict: (e) => [`Photo ${e.n}: ${e.verdict} (${e.reason}), liable ${e.liable}${e.refund_tx ? ', refund paid' : ''}`, e.refund_url], revoked: (e) => ['Grant revoked', e.url], revoke_failed: (e) => `Could not revoke the grant: ${e.message}`, run_failed: (e) => `Run failed: ${e.message}`,
 };
+// Live stages: a line with a ticking elapsed time for anything that can take a while (the segmentation model waking up, a photo being checked), so the page is never silent.
+const stages = new Map();
+function stageEvent(e) {
+  const box = $('stages');
+  if (e.state === 'start') {
+    if (stages.has(e.id)) return;
+    const t0 = Date.now(), line = el('li', {}, el('span', { class: 'spin', 'aria-hidden': 'true' }), el('span', { text: e.label }), el('span', { class: 'elapsed', text: ' 0 s' }));
+    const timer = setInterval(() => { line.querySelector('.elapsed').textContent = ` ${Math.round((Date.now() - t0) / 1000)} s`; }, 1000);
+    stages.set(e.id, { line, timer, t0 }); box.append(line); box.hidden = false;
+  } else if (e.state === 'done') {
+    const st = stages.get(e.id); if (!st) return;
+    clearInterval(st.timer); st.line.remove(); stages.delete(e.id); box.hidden = stages.size === 0;
+    if (e.id === 'warm') {
+      const sec = Math.max(0, Math.round((e.ms ?? 0) / 1000));
+      const li = el('li', {}, el('time', { text: T0() }), el('span', { text: e.ok ? (e.skipped ? 'Segmentation model: nothing to start' : `Segmentation model ready (${sec} s)`) : `Segmentation model unavailable: ${e.reason ?? 'unknown error'}. Photos will be reported as "could not be checked".` }));
+      if (!e.ok) li.classList.add('bad');
+      $('timeline').append(li);
+    }
+  }
+}
+function clearStages() { for (const st of stages.values()) clearInterval(st.timer); stages.clear(); $('stages').textContent = ''; $('stages').hidden = true; }
 function addLine(e) {
+  if (e.type === 'stage') return stageEvent(e);
   const f = LABEL[e.type]; if (!f) return;
   const r = f(e), [text, url] = Array.isArray(r) ? r : [r, null];
   const li = el('li', {}, el('time', { text: T0() }), el('span', { text }));
@@ -86,11 +108,11 @@ async function start(check) {
   fail('err2', ''); $('confirm').disabled = $('confirmControl').disabled = true;
   const r = await post('/api/confirm', { compile_id: compileId, check_delivery: check });
   if (!r.ok) { fail('err2', explain(r.j)); $('confirm').disabled = $('confirmControl').disabled = false; return; }
-  compileId = null; show('step3'); $('timeline').textContent = ''; $('purchases').textContent = ''; show('summary', false);
+  compileId = null; clearStages(); show('step3'); $('timeline').textContent = ''; $('purchases').textContent = ''; show('summary', false);
   $('step3').scrollIntoView({ behavior: 'smooth', block: 'start' });
   const es = new EventSource(`/api/runs/${r.j.run_id}/events`);
-  es.onmessage = async (m) => { const e = JSON.parse(m.data); addLine(e); if (e.type === 'end') { es.close(); await finish(r.j.run_id); $('confirm').disabled = $('confirmControl').disabled = false; } };
-  es.onerror = () => { es.close(); };
+  es.onmessage = async (m) => { const e = JSON.parse(m.data); addLine(e); if (e.type === 'end') { es.close(); clearStages(); await finish(r.j.run_id); $('confirm').disabled = $('confirmControl').disabled = false; } };
+  es.onerror = () => { es.close(); clearStages(); addLine({ type: 'run_failed', message: 'the connection to the run was lost; reload the page to see its result' }); };
 }
 $('confirm').addEventListener('click', () => start(true));
 $('confirmControl').addEventListener('click', () => start(false));
@@ -109,7 +131,7 @@ async function finish(runId) {
     const card = el('div', { class: 'purchase' }, el('h3', {}, `#${p.n} ${p.shop_name} · ${p.sku}`, el('span', { class: `badge ${p.outcome}`, text: (p.outcome ?? '').replaceAll('_', ' ').toLowerCase() })));
     const pair = el('div', { class: 'pair' });
     pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.image}`, alt: `photo ${p.n} as delivered` }), el('figcaption', { text: 'As delivered' })));
-    if (p.overlay) pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.overlay}`, alt: `photo ${p.n} with the segmentation mask` }), el('figcaption', { text: p.overlay_shows === 'observed' ? `No match for the offered item. Mask (magenta) of what the check found instead: ${p.observed_phrase}` : p.overlay_shows === 'offered' ? 'Mask (magenta) of the offered item found in the photo' : 'Nothing matching the offer was found in the photo' })));
+    if (p.overlay) pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.overlay}`, alt: `photo ${p.n} with the segmentation mask` }), el('figcaption', { text: p.outcome === 'COULD_NOT_BE_CHECKED' && !p.overlay_shows ? 'The check could not be completed, so no mask was made' : p.overlay_shows === 'observed' ? `No match for the offered item. Mask (magenta) of what the check found instead: ${p.observed_phrase}` : p.overlay_shows === 'offered' ? 'Mask (magenta) of the offered item found in the photo' : 'Nothing matching the offer was found in the photo' })));
     card.append(pair);
     if (p.outcome_reasons) card.append(el('p', { class: 'muted small', text: p.outcome_reasons.join(' ') }));
     const links = el('p', { class: 'links' });

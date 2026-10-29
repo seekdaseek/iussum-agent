@@ -6,11 +6,12 @@ import Ajv from 'ajv';
 import { VISION_SCHEMA, VISION_SYSTEM, visionQuestion } from './prompts.js';
 import { applyRule, RULE_VERSION, THRESHOLDS } from './rule.js';
 import { makeOverlay, cropBox } from './overlay.js';
+import { segmentationHint } from '../../models/adapters/groundsam.js';
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const ajv = new Ajv({ allErrors: true, strict: false });
 const checkVision = ajv.compile(VISION_SCHEMA);
-const errText = (e) => `${e.kind ?? e.name}: ${String(e.message).slice(0, 300)}`;
+const errText = (e) => (e.name === 'ProviderError' ? String(e.message) : `${e.kind ?? e.name}: ${String(e.message)}`).slice(0, 300); // a ProviderError message already names provider, job and kind
 const modelOf = (meta) => ({ provider: meta.provider, model: meta.model, latency_ms: meta.latencyMs ?? null, cost_usd: meta.costUsd ?? null, fixture_provenance: meta.fixtureProvenance ?? null });
 
 async function judge(provider, image, offer, spec, crop) {
@@ -22,8 +23,9 @@ async function judge(provider, image, offer, spec, crop) {
 }
 
 // offer: { shop, sku, title, description }; spec: { noun_phrase, must_not }
-export async function runDeliveryCheck({ provider, image, offer, spec, thresholds = THRESHOLDS }) {
+export async function runDeliveryCheck({ provider, image, offer, spec, thresholds = THRESHOLDS, onStage = () => {} }) {
   const t0 = Date.now();
+  onStage('segmenting');
   let seg, best = null, frame = null;
   try {
     const r = await provider.segment(image, spec.noun_phrase, { mime: 'image/png' });
@@ -31,8 +33,9 @@ export async function runDeliveryCheck({ provider, image, offer, spec, threshold
     const inst = r.value.instances.map((i) => ({ id: i.id, box: i.box, confidence: i.confidence, area_px: i.areaPx ?? null, mask: i.mask ?? null }));
     seg = { instances: inst.map(({ mask: _m, ...rest }) => rest), raw_output: r.value.rawOutput, frame, phrase: spec.noun_phrase, image_sha256: sha(image), model: modelOf(r.meta), diagnostics: r.value.diagnostics };
     best = inst.filter((i) => i.confidence === null || i.confidence >= thresholds.segMinConfidence).sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))[0] ?? null;
-  } catch (e) { seg = { error: errText(e), phrase: spec.noun_phrase, image_sha256: sha(image) }; }
+  } catch (e) { seg = { error: errText(e), ...(segmentationHint(e) ? { error_hint: segmentationHint(e) } : {}), phrase: spec.noun_phrase, image_sha256: sha(image) }; }
 
+  onStage('judging');
   const full = await judge(provider, image, offer, spec, false);
   let crop = null, cropImage = null;
   if (best) {

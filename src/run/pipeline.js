@@ -32,6 +32,11 @@ export function createPipeline(cfg) {
     const report = { run_id: runId, check_delivery: checkDelivery, started_at: now(), mandate_id: mandateId(mandate), limits, item, readback: compiled.readback, purchases: [], summary: null, error: null };
     const save = () => fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(report, null, 1));
     const principalBefore = await chain.usdc(keys.principal.address);
+    // The segmentation endpoint scales to zero and needs 30 to 60 s to start. Wake it now, while the grant and the shopping take their time, and tell the page.
+    if (checkDelivery && provider.warmSegmenter) {
+      emit({ type: 'stage', id: 'warm', state: 'start', label: 'Starting the segmentation model (about 30 to 60 s if it has been idle)' });
+      provider.warmSegmenter().then((w) => { if (w) emit({ type: 'stage', id: 'warm', state: 'done', ok: w.ok, ms: w.ms, ...(w.skipped ? { skipped: w.skipped } : {}), ...(w.ok ? {} : { reason: w.hint ?? w.error }) }); else emit({ type: 'stage', id: 'warm', state: 'done', ok: true, ms: 0 }); });
+    }
     emit({ type: 'grant_start' });
     const grant_tx = await chain.sendGrant(keys.principal, mandate);
     report.grant_tx = grant_tx; report.grant_url = explorerTx(grant_tx);
@@ -66,13 +71,17 @@ export function createPipeline(cfg) {
       const it = cat.items.find((i) => i.sku === p.sku);
       const offer = { shop: p.shop, sku: p.sku, title: it?.title ?? p.sku, description: it?.description ?? '' };
       emit({ type: 'check_start', n });
-      const run1 = await runDeliveryCheck({ provider, image: r.bytes, offer, spec: { noun_phrase: item.noun_phrase, must_not: item.must_not } });
+      const stageLabel = { segmenting: `Photo ${n}: locating the offered item and cutting it out`, judging: `Photo ${n}: judging the photo against the offer` };
+      let stageOpen = null;
+      const onStage = (st) => { if (stageOpen) emit({ type: 'stage', id: stageOpen, state: 'done' }); stageOpen = `check-${n}-${st}`; emit({ type: 'stage', id: stageOpen, state: 'start', label: stageLabel[st] }); };
+      const run1 = await runDeliveryCheck({ provider, image: r.bytes, offer, spec: { noun_phrase: item.noun_phrase, must_not: item.must_not }, onStage });
+      if (stageOpen) emit({ type: 'stage', id: stageOpen, state: 'done' });
       fs.writeFileSync(path.join(dir, `overlay-${n}.png`), run1.overlay_png); entry.overlay = `overlay-${n}.png`; entry.overlay_shows = run1.overlay_shows ?? null; entry.observed_phrase = run1.checks.observed?.phrase ?? null;
       const ev = buildEvidence({ receipt: r.receipt, mandate_id: r.receipt.mandate_id, grant_tx, offer, spec: { noun_phrase: item.noun_phrase, must_not: item.must_not }, delivery: { bytes: r.bytes, attestation: r.attestation }, run: run1, now: now() });
       fs.writeFileSync(path.join(dir, `evidence-${n}.json`), JSON.stringify(ev, null, 1)); entry.evidence = `evidence-${n}.json`; entry.evidence_id = ev.evidence_id;
       entry.outcome = run1.rule.outcome; entry.outcome_code = run1.rule.code; entry.outcome_reasons = run1.rule.reasons;
       entry.model_cost_usd = [run1.checks.seg?.model, run1.checks.full?.model, run1.checks.crop?.model].reduce((a, m) => a + (m?.cost_usd ?? 0), 0);
-      emit({ type: 'check_done', n, outcome: entry.outcome });
+      emit({ type: 'check_done', n, outcome: entry.outcome, ...(entry.outcome === 'COULD_NOT_BE_CHECKED' ? { reasons: entry.outcome_reasons } : {}) });
       if (entry.outcome === 'NOT_AS_OFFERED') {
         emit({ type: 'dispute_start', n });
         const v = await arbiter.dispute({ evidence: ev, overlay_png_b64: run1.overlay_png.toString('base64'), delivered_b64: r.bytes.toString('base64'), mandate });

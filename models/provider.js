@@ -59,5 +59,7 @@ export function createProvider({ env = process.env, f = globalThis.fetch, ledger
       return { ...res, meta: { ...res.meta, costUsd } };
     };
   }
+  // wakes the segmentation endpoint if the chosen segment adapter has one (never throws; { ok, ms, error?, hint? } or null when there is nothing to wake)
+  provider.warmSegmenter = async () => { try { const a = adapterFor('segment'); return a.warm ? await a.warm() : null; } catch (e) { return { ok: false, ms: 0, error: `${e.kind ?? e.name}: ${e.message}` }; } };
   return provider;
 }

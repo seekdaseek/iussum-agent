@@ -15,7 +15,7 @@ export const OUTCOMES = ['DELIVERED_AS_OFFERED', 'NOT_AS_OFFERED', 'COULD_NOT_BE
 // crop:  null (not run: nothing to crop) | { error } | { answer: same shape as full }
 export function applyRule({ seg, full, crop }, th = THRESHOLDS) {
   const why = [];
-  if (seg?.error) why.push(`segmentation failed: ${seg.error}`);
+  if (seg?.error) why.push(`segmentation failed${seg.error_hint ? `: ${seg.error_hint}` : ''} (${seg.error})`);
   if (full?.error) why.push(`vision check failed: ${full.error}`);
   if (crop?.error) why.push(`crop check failed: ${crop.error}`);
   if (why.length) return { outcome: 'COULD_NOT_BE_CHECKED', reasons: why, code: 'check_error' };

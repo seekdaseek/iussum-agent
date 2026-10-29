@@ -61,6 +61,28 @@ export function createGroundSamAdapter({ ground, url, token, f = globalThis.fetc
       }
       return { value: { rawOutput: JSON.stringify({ ground: ans, sam: { model: j.model, boxes, scores: j.instances.map((x) => x.score) } }), frame: { w, h }, instances, diagnostics: [] }, meta: { ...common, sam: j.model, samLatencyMs: r.latencyMs, images: 1 } };
     },
+    // Wakes the SAM 2.1 container (scale-to-zero: the first call after idle loads the model, about 30 s). One tiny box on a 64 px image; never throws, never counts as a model
+    // answer. Used while the shopping agent is still busy, so the cold start is hidden behind work that has to happen anyway.
+    async warm() {
+      if (maskless) return { ok: true, skipped: 'no segmentation endpoint (path C)', ms: 0 };
+      const t0 = Date.now();
+      try {
+        const img = await sharp({ create: { width: 64, height: 64, channels: 3, background: '#888' } }).png().toBuffer();
+        const r = await request({ provider: NAME, job: 'segment', url, headers: token ? { authorization: `Bearer ${token}` } : {}, json: { image_b64: img.toString('base64'), boxes: [[8, 8, 56, 56]] }, timeoutMs: 180_000, f });
+        parseJson(r.text, { provider: NAME, job: 'segment' });
+        return { ok: true, ms: Date.now() - t0 };
+      } catch (e) { return { ok: false, ms: Date.now() - t0, error: `${e.kind ?? e.name}: ${String(e.message).slice(0, 200)}`, hint: segmentationHint(e) }; }
+    },
     transcribe: no('transcribe'), compileMandate: no('compileMandate'), vision: no('vision'), agentStep: no('agentStep'), generateImage: no('generateImage'), editImage: no('editImage'),
   };
+}
+// What a visitor should read when the segmentation service fails. The raw error stays in the evidence next to it.
+export function segmentationHint(e) {
+  const status = e?.status ?? null;
+  if (status === 402 || status === 429 || /credit|quota|billing|payment/i.test(String(e?.message))) return 'the segmentation service has no credit left or is rate limited';
+  if (status === 401 || status === 403) return 'the segmentation service refused our token';
+  if (e?.kind === 'timeout') return 'the segmentation service did not answer in time (it may still be starting up)';
+  if (e?.kind === 'network') return 'the segmentation service could not be reached';
+  if (status >= 500) return 'the segmentation service failed';
+  return null;
 }

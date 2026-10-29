@@ -44,3 +44,11 @@ footer{color:var(--muted);font-size:13px;margin-top:28px}
 .verdict main{max-width:760px}.facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px}.facts dt{color:var(--muted)}.facts dd{margin:0;overflow-wrap:anywhere}
 .offer{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin:0}
 @media (max-width:560px){.pair{grid-template-columns:1fr}.facts{grid-template-columns:1fr}}
+
+.stages{list-style:none;margin:0 0 12px;padding:0}
+.stages li{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--accent);border-radius:10px;margin-bottom:8px;background:var(--bg)}
+.stages .elapsed{color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin 1s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none;border-top-color:var(--line);background:var(--accent)}}
+.timeline li.bad{color:var(--bad)}

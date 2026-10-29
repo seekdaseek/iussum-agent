@@ -7,6 +7,7 @@
 import sharp from 'sharp';
 import { ProviderError, unsupported } from '../errors.js';
 import { request, parseJson } from '../http.js';
+import { segmentationHint } from './groundsam.js';
 
 const NAME = 'modal';
 
@@ -28,6 +29,14 @@ export function createModalAdapter({ url, token, f = globalThis.fetch, timeoutMs
         instances.push({ id: String(i), box: { x1, y1, x2, y2 }, confidence: it.score ?? null, mask: { left: 0, top: 0, right: info.width, bottom: info.height, width: info.width, height: info.height, bits }, areaPx });
       }
       return { value: { rawOutput: r.text, frame: { w: j.width, h: j.height }, instances, diagnostics: [] }, meta: { provider: NAME, model: j.model ?? 'sam3.1-open-weights', job: 'segment', latencyMs: r.latencyMs, requestId: r.requestId, images: 1 } };
+    },
+    async warm() { // same idea as groundsam.warm(): wake the SAM 3 container with a tiny image
+      const t0 = Date.now();
+      try {
+        const img = await sharp({ create: { width: 64, height: 64, channels: 3, background: '#888' } }).png().toBuffer();
+        parseJson((await request({ provider: NAME, job: 'segment', url, headers: token ? { authorization: `Bearer ${token}` } : {}, json: { image_b64: img.toString('base64'), phrase: 'object' }, timeoutMs: 240_000, f })).text, { provider: NAME, job: 'segment' });
+        return { ok: true, ms: Date.now() - t0 };
+      } catch (e) { return { ok: false, ms: Date.now() - t0, error: `${e.kind ?? e.name}: ${String(e.message).slice(0, 200)}`, hint: segmentationHint(e) }; }
     },
     transcribe: no('transcribe'), compileMandate: no('compileMandate'), vision: no('vision'), agentStep: no('agentStep'), generateImage: no('generateImage'), editImage: no('editImage'),
   };
