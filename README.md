@@ -6,7 +6,14 @@ Entry for the Meta Global AI Developer Hackathon (Indie Developer track). Everyt
 
 ## Built on Meta's open weights
 
-Every model call in this entry goes to **Muse Spark Open** (`meta-models/muse-spark-open-1026`, Meta's open-weights model) served through Baseten's partner inference: the request-to-limits compiler, the shopping agent's tool loop, the voice transcription, the delivery check's vision judgement and the grounding of the offered item in the delivered photo. Segmentation is meant to run on Meta's open SAM weights (SAM 2.1, Apache-2.0, on Modal, from a Muse-Spark-Open box). That last part is **not deployed yet**; until it is, the delivery check runs on vision grounding alone (a box, no mask) and says so in its own evidence records. SAM 3.1 is a swap-in if access to its gated weights is granted.
+Every model in this entry is a Meta open-weights model. The exact models:
+
+| Job | Model | Served by |
+|---|---|---|
+| request-to-limits compiler, shopping agent (tool calling), voice transcription, delivery vision judgement, grounding of the offered item to a box | **Muse Spark Open**, `meta-models/muse-spark-open-1026` | Baseten partner inference |
+| mask of the grounded object | **SAM 2.1**, `facebook/sam2.1-hiera-large` (Apache-2.0) | our endpoint on Modal (CPU), `modal/sam2_app.py` |
+
+Muse Spark Open gives a box for the offered noun phrase; SAM 2.1 turns the box into a mask. **SAM 3** (`facebook/sam3`, text prompt in, masks out, `modal/sam3_app.py`) was built and run on the same labelled images as an alternative: identical on the 22 clear cases, slightly less cautious on the 6 ambiguous ones, about twice the latency and three times the Modal cost on CPU, so SAM 2.1 ships. SAM 3.1 (`facebook/sam3.1`) is not used: access was never granted. Segmentation is a real mask only on the SAM 2.1 path; the box-only fallback is labelled `baseten-ground` in the evidence.
 
 Muse Image was planned for the shop catalogues (and for the dishonest shop's swapped deliveries as image edits). It is not used: the Meta Model API is not available to this entry. The catalogues are real photographs under open licences (CC0 and CC BY, Wikimedia Commons), credited on each shop page and in `assets/photos/SOURCES.md`.
 
@@ -16,14 +23,14 @@ Working end to end on Solana devnet with real model calls: a request is compiled
 
 Measured, not claimed: the compile eval (30 requests plus 22 held-out) and a 28-image labelled calibration of the delivery rule. Numbers and failures are in the day reports, not here, because they will keep changing until submission. The thresholds were chosen from a small set labelled by one person.
 
-Not done yet: SAM 2.1 on Modal (masks), the live deployment, the video.
+Not done yet: the live deployment, the video. SAM 2.1 runs on Modal CPU (Modal requires a payment method for GPU functions): about 9 s per image warm, about 30 s on the first request after idle.
 
 ## The pipeline
 
 1. **Say it.** Text, or a recording sent to Muse Spark Open as an audio input (`models/`, `web/`). On about 1 call in 10 the model answers that it received no audio; that answer is detected and retried, never shown as a transcript.
 2. **Compile it.** Muse Spark Open (JSON mode, schema in the prompt) turns the words into limits. Code decides: the answer is validated against a closed schema, missing or ambiguous things become one fixed question, unbounded, contradictory or out-of-policy requests are rejected, and a plain-words read-back is built from the validated fields (`src/intent/`). Nothing is granted before the person confirms.
 3. **Grant and buy.** The confirmed mandate is granted on devnet through the earlier iussum (one transaction: SPL `ApproveChecked` plus a memo). A Muse Spark Open tool-loop agent (native tool calling) compares the demo shops' offers and pays; code limits the number of purchases and the earlier iussum agent refuses anything outside the mandate (`src/agent/`, `src/shops/`).
-4. **Check the delivery.** The offered noun phrase is grounded in the delivered image (Muse Spark Open gives a box; SAM 2.1 turns it into a mask once deployed); Muse Spark Open's vision judges the image and a crop of the box against the offer. The outcome is `DELIVERED_AS_OFFERED`, `NOT_AS_OFFERED` or `COULD_NOT_BE_CHECKED`; an error, a low-confidence answer or two checks that disagree is the third state, never one of the first two (`src/evidence/rule.js`). The shop signs what it delivered, so the evidence rests on the shop's own signature, not the buyer's word (`src/shops/attest.js`).
+4. **Check the delivery.** The offered noun phrase is grounded in the delivered image (Muse Spark Open gives a box; SAM 2.1 turns it into a mask); Muse Spark Open's vision judges the image and a crop of the box against the offer. The outcome is `DELIVERED_AS_OFFERED`, `NOT_AS_OFFERED` or `COULD_NOT_BE_CHECKED`; an error, a low-confidence answer or two checks that disagree is the third state, never one of the first two (`src/evidence/rule.js`). The shop signs what it delivered, so the evidence rests on the shop's own signature, not the buyer's word (`src/shops/attest.js`).
 5. **Dispute and refund.** The evidence record (JCS + sha256, recomputable by anyone from the record alone) goes to the arbiter. It verifies the shop signatures, re-applies the rule to the recorded answers, proves the payment on chain and refunds once (`src/dispute/`). A verdict page shows the mask next to the offer text.
 6. **A live page** to try it (`web/`, `src/web/`): one run at a time, per-IP rate limits, daily spend limits for model credit and devnet USDC.
 
@@ -62,7 +69,7 @@ node scripts/devnet-pipeline.mjs           # 3 purchases, 3 caught, 3 refunds; -
 DEV_STUBS=1 node scripts/serve.mjs         # the live page with a red "no model is called" banner
 ```
 
-With a Baseten key (`BASETEN_API_KEY` in `.env`): `node scripts/build-real-catalog.mjs`, then `MODEL_PROVIDER=baseten MODEL_PROVIDER_SEGMENT=ground node --env-file=.env scripts/serve.mjs` and `node scripts/run-demo.mjs` (`--control` for the run with the delivery check off). Provider notes: `models/PROVIDERS.md`.
+With a Baseten key (`BASETEN_API_KEY` in `.env`): `node scripts/build-real-catalog.mjs`, then `MODEL_PROVIDER=baseten MODEL_PROVIDER_SEGMENT=groundsam node --env-file=.env scripts/serve.mjs` and `node scripts/run-demo.mjs` (`--control` for the run with the delivery check off). Provider notes: `models/PROVIDERS.md`.
 
 ## Limits worth knowing
 
@@ -70,4 +77,4 @@ With a Baseten key (`BASETEN_API_KEY` in `.env`): `node scripts/build-real-catal
 - The delivery attestation binds to the payment by resource, payer and offer hash, not by transaction id (x402 settles after the shop answers). Two payments by one payer for one resource are told apart only by the receipt in the evidence record.
 - One run at a time: each grant replaces the previous one on the shared devnet wallet.
 - The delivery rule's thresholds come from a 28-image set labelled by one person: a sanity check, not a guarantee. The refund decision never rests on a single model answer: an error, low confidence or disagreement is COULD_NOT_BE_CHECKED and nobody is refunded or accused on it.
-- The grounding-only check (no SAM yet) shows a box, not a mask, and its records say `baseten-ground`.
+- A wrong delivery has nothing matching the offer to mask; the overlay then shows the mask of what the vision model says is there (for example a clear glass tumbler), recorded as illustrative and never used by the rule.
