@@ -35,7 +35,7 @@ test('the permission refuses a payment: the model is told why, nothing is record
   const r = await runShopper({ provider, shops, getCatalog, buy, system: sys, count: 1, onEvent: (e) => events.push(e) });
   assert.deepEqual(r.purchases.map((p) => `${p.shop}/${p.sku}`), ['kiln/mug-front']);
   assert.equal(seen[1][0].refused_by_permission, 'pay_to_not_allowed');
-  assert.deepEqual(events.map((e) => e.type), ['refused', 'purchase']);
+  assert.deepEqual(events.map((e) => e.type), ['agent_call', 'refused', 'agent_call', 'purchase']);
   assert.equal(r.ended, 'quota');
 });
 test('code enforces the quota and duplicates even when the model insists', async () => {

@@ -65,6 +65,7 @@ export async function runShopper({ provider, shops, getCatalog, buy, system, cou
       let finished = false;
       for (const t of tool_calls) {
         if (t.name === 'finish') { finished = true; messages.push({ role: 'tool', tool_call_id: t.id, content: '{"ok":true}' }); transcript.at(-1).summary = String(t.arguments?.summary ?? '').slice(0, 500); continue; }
+        onEvent({ type: 'agent_call', name: t.name, shop: t.arguments?.shop_id ?? null, sku: t.arguments?.sku ?? null }); // the page shows each tool call the model makes
         const out = await exec(t.name, t.arguments ?? {});
         transcript.at(-1).results = [...(transcript.at(-1).results ?? []), { name: t.name, ok: out.ok ?? true, ...(out.ok === false ? { problem: String(out.error ?? out.refused_by_permission ?? out.http_status).slice(0, 200) } : {}) }];
         messages.push({ role: 'tool', tool_call_id: t.id, content: JSON.stringify(out) });

@@ -84,7 +84,10 @@ export function createPipeline(cfg) {
       emit({ type: 'check_done', n, outcome: entry.outcome, ...(entry.outcome === 'COULD_NOT_BE_CHECKED' ? { reasons: entry.outcome_reasons } : {}) });
       if (entry.outcome === 'NOT_AS_OFFERED') {
         emit({ type: 'dispute_start', n });
-        const v = await arbiter.dispute({ evidence: ev, overlay_png_b64: run1.overlay_png.toString('base64'), delivered_b64: r.bytes.toString('base64'), mandate });
+        const rcId = `recheck-${n}`;
+        emit({ type: 'stage', id: rcId, state: 'start', label: `Photo ${n}: the arbiter proves the payment on chain and re-runs the check itself` });
+        let v; try { v = await arbiter.dispute({ evidence: ev, overlay_png_b64: run1.overlay_png.toString('base64'), delivered_b64: r.bytes.toString('base64'), mandate }); } finally { emit({ type: 'stage', id: rcId, state: 'done' }); }
+        if (v.recheck) emit({ type: 'recheck', n, agreed: v.recheck.agreed, filed_outcome: v.recheck.filed_outcome, recheck_outcome: v.recheck.recheck_outcome, seconds: Math.round(v.recheck.ms / 100) / 10 });
         entry.verdict = { verdict: v.verdict, reason: v.reason, liable: v.liable, problems: v.problems ?? null, refund_tx: v.refund_tx ?? null, refund_url: v.refund_tx ? explorerTx(v.refund_tx) : null, refund_error: v.refund_error ?? null, refund_state: v.refund_state ?? null, recheck: v.recheck ?? null };
         emit({ type: 'verdict', n, ...entry.verdict });
       }

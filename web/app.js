@@ -72,6 +72,8 @@ const LABEL = {
   grant_start: () => 'Signing the grant on Solana devnet…', grant_done: (e) => ['Grant confirmed on chain', e.url], purchase: (e) => `Paid ${e.shop} for ${e.sku} (${(Number(e.amount) / 1e6).toFixed(2)} USDC)`,
   refused: (e) => `The permission refused a purchase at ${e.shop}: ${e.reason}`, shopping_done: (e) => `Shopping finished (${e.purchases} paid)`, delivery_received: (e) => `Received photo ${e.n} from ${e.shop}`,
   check_start: (e) => `Checking photo ${e.n}: segmentation + vision…`, check_done: (e) => `Photo ${e.n}: ${e.outcome.replaceAll('_', ' ').toLowerCase()}${e.reasons?.length ? `. ${e.reasons.join(' ')}` : ''}`, dispute_start: (e) => `Filing a dispute for photo ${e.n} with the evidence record…`,
+  agent_call: (e) => `Agent calls ${e.name}${e.shop ? ` · ${e.shop}` : ''}${e.sku ? ` / ${e.sku}` : ''}`,
+  recheck: (e) => `Photo ${e.n}: arbiter re-ran the check itself: ${String(e.recheck_outcome).replaceAll('_', ' ').toLowerCase()}, ${e.agreed ? 'agrees with' : 'differs from'} the filed record (${e.seconds} s)`,
   verdict: (e) => [`Photo ${e.n}: ${e.verdict} (${e.reason}), liable ${e.liable}${e.refund_tx ? ', refund paid' : ''}`, e.refund_url], revoked: (e) => ['Grant revoked', e.url], revoke_failed: (e) => `Could not revoke the grant: ${e.message}`, run_failed: (e) => `Run failed: ${e.message}`,
 };
 // Live stages: a line with a ticking elapsed time for anything that can take a while (the segmentation model waking up, a photo being checked), so the page is never silent.
@@ -133,6 +135,7 @@ async function finish(runId) {
     pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.image}`, alt: `photo ${p.n} as delivered` }), el('figcaption', { text: 'As delivered' })));
     if (p.overlay) pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.overlay}`, alt: `photo ${p.n} with the segmentation mask` }), el('figcaption', { text: p.outcome === 'COULD_NOT_BE_CHECKED' && !p.overlay_shows ? 'The check could not be completed, so no mask was made' : p.overlay_shows === 'observed' ? `No match for the offered item. Mask (magenta) of what the check found instead: ${p.observed_phrase}` : p.overlay_shows === 'offered' ? 'Mask (magenta) of the offered item found in the photo' : 'Nothing matching the offer was found in the photo' })));
     card.append(pair);
+    if (p.verdict?.recheck) card.append(el('p', { class: 'muted small', text: `Arbiter's own re-run: ${p.verdict.recheck.recheck_outcome.replaceAll('_', ' ').toLowerCase()}, ${p.verdict.recheck.agreed ? 'agrees with the filed record' : 'differs from the filed record'} (${(p.verdict.recheck.ms / 1000).toFixed(1)} s).` }));
     if (p.outcome_reasons) card.append(el('p', { class: 'muted small', text: p.outcome_reasons.join(' ') }));
     const links = el('p', { class: 'links' });
     if (p.payment_url) links.append(el('a', { href: p.payment_url, rel: 'noopener', target: '_blank', text: 'payment tx' }));
