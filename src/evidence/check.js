@@ -40,6 +40,19 @@ export async function runDeliveryCheck({ provider, image, offer, spec, threshold
     catch (e) { crop = { error: errText(e) }; }
   }
   const rule = applyRule({ seg, full, crop }, thresholds);
-  const overlay = await makeOverlay(image, { instance: rule.outcome === 'COULD_NOT_BE_CHECKED' && !best ? null : best, frame });
-  return { checks: { seg, full, crop }, rule: { version: RULE_VERSION, thresholds, ...rule }, overlay_png: overlay.png, crop_png: cropImage, took_ms: Date.now() - t0 };
+  // ILLUSTRATIVE, not part of the rule: when the delivery is not what was offered and nothing matched the offered phrase, look for what the vision model says IS there
+  // ("clear glass tumbler") so the overlay can show it. A failure here changes nothing; the rule above has already decided.
+  let observed = null, shown = best, shownFrame = frame, shownIs = best ? 'offered' : null;
+  const obs = full?.answer?.observed_object;
+  if (rule.outcome === 'NOT_AS_OFFERED' && !best && typeof obs === 'string' && obs.trim() && obs.length <= 80) {
+    try {
+      const r = await provider.segment(image, obs.trim().toLowerCase(), { mime: 'image/png' });
+      const inst = r.value.instances.map((i) => ({ id: i.id, box: i.box, confidence: i.confidence, area_px: i.areaPx ?? null, mask: i.mask ?? null }));
+      observed = { illustrative: true, phrase: obs.trim().toLowerCase(), instances: inst.map(({ mask: _m, ...rest }) => rest), raw_output: r.value.rawOutput, frame: r.value.frame, model: modelOf(r.meta) };
+      const top = inst.slice().sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))[0] ?? null;
+      if (top) { shown = top; shownFrame = r.value.frame; shownIs = 'observed'; }
+    } catch (e) { observed = { illustrative: true, phrase: obs.trim().toLowerCase(), error: errText(e) }; }
+  }
+  const overlay = await makeOverlay(image, { instance: rule.outcome === 'COULD_NOT_BE_CHECKED' && !shown ? null : shown, frame: shownFrame });
+  return { checks: { seg, full, crop, ...(observed ? { observed } : {}) }, overlay_shows: shownIs, rule: { version: RULE_VERSION, thresholds, ...rule }, overlay_png: overlay.png, crop_png: cropImage, took_ms: Date.now() - t0 };
 }

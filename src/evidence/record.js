@@ -23,7 +23,7 @@ export function buildEvidence({ receipt, mandate_id, grant_tx, offer, spec, deli
     checks: run.checks,
     rule: run.rule,
     outcome: run.rule.outcome,
-    overlay: { sha256: sha(run.overlay_png), content_type: 'image/png' },
+    overlay: { sha256: sha(run.overlay_png), content_type: 'image/png', shows: run.overlay_shows ?? null }, // 'offered' (mask of the offered object), 'observed' (illustrative: what the vision model says is there) or null (nothing found)
   };
   return { record, evidence_id: jcsSha(record) };
 }

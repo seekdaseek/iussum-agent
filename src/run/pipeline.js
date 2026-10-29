@@ -67,7 +67,7 @@ export function createPipeline(cfg) {
       const offer = { shop: p.shop, sku: p.sku, title: it?.title ?? p.sku, description: it?.description ?? '' };
       emit({ type: 'check_start', n });
       const run1 = await runDeliveryCheck({ provider, image: r.bytes, offer, spec: { noun_phrase: item.noun_phrase, must_not: item.must_not } });
-      fs.writeFileSync(path.join(dir, `overlay-${n}.png`), run1.overlay_png); entry.overlay = `overlay-${n}.png`;
+      fs.writeFileSync(path.join(dir, `overlay-${n}.png`), run1.overlay_png); entry.overlay = `overlay-${n}.png`; entry.overlay_shows = run1.overlay_shows ?? null; entry.observed_phrase = run1.checks.observed?.phrase ?? null;
       const ev = buildEvidence({ receipt: r.receipt, mandate_id: r.receipt.mandate_id, grant_tx, offer, spec: { noun_phrase: item.noun_phrase, must_not: item.must_not }, delivery: { bytes: r.bytes, attestation: r.attestation }, run: run1, now: now() });
       fs.writeFileSync(path.join(dir, `evidence-${n}.json`), JSON.stringify(ev, null, 1)); entry.evidence = `evidence-${n}.json`; entry.evidence_id = ev.evidence_id;
       entry.outcome = run1.rule.outcome; entry.outcome_code = run1.rule.code; entry.outcome_reasons = run1.rule.reasons;

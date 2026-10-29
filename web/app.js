@@ -109,7 +109,7 @@ async function finish(runId) {
     const card = el('div', { class: 'purchase' }, el('h3', {}, `#${p.n} ${p.shop_name} · ${p.sku}`, el('span', { class: `badge ${p.outcome}`, text: (p.outcome ?? '').replaceAll('_', ' ').toLowerCase() })));
     const pair = el('div', { class: 'pair' });
     pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.image}`, alt: `photo ${p.n} as delivered` }), el('figcaption', { text: 'As delivered' })));
-    if (p.overlay) pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.overlay}`, alt: `photo ${p.n} with the segmentation mask` }), el('figcaption', { text: 'Segmentation mask (magenta) of the object the check looked for' })));
+    if (p.overlay) pair.append(el('figure', {}, el('img', { src: `/runs/${rep.run_id}/${p.overlay}`, alt: `photo ${p.n} with the segmentation mask` }), el('figcaption', { text: p.overlay_shows === 'observed' ? `No match for the offered item. Mask (magenta) of what the check found instead: ${p.observed_phrase}` : p.overlay_shows === 'offered' ? 'Mask (magenta) of the offered item found in the photo' : 'Nothing matching the offer was found in the photo' })));
     card.append(pair);
     if (p.outcome_reasons) card.append(el('p', { class: 'muted small', text: p.outcome_reasons.join(' ') }));
     const links = el('p', { class: 'links' });

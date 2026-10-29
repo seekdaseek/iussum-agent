@@ -36,7 +36,7 @@ if (!fs.existsSync(path.join(catalogDir, 'kiln', 'catalog.json'))) {
   await makeCatalogs({ provider: stubImageProvider(), catalogDir }); // SYNTHETIC images, dev stubs only
 }
 const shopIds = ['kiln', 'mugworks', 'glazed'];
-const provider = devStubs ? makeDevProvider({ catalogDir, shopIds }) : createProvider({ env, ledger: new CostLedger({ file: path.join(dataDir, 'cost.jsonl'), stopAtUsd: Number(env.STOP_AT_USD ?? 100) }) });
+const provider = devStubs ? makeDevProvider({ catalogDir, shopIds }) : createProvider({ env, ledger: new CostLedger({ file: path.join(dataDir, 'cost.jsonl'), stopAtUsd: Number(env.STOP_AT_USD ?? 70) }) });
 const shopsApp = createShopsApp({ origin, catalogDir, keys: shopKeys, rpc: chain.rpc, network: DEVNET.network, asset: DEVNET.mint, facilitatorUrl: DEVNET.facilitator, dataDir: path.join(dataDir, 'gate') });
 const shops = shopRegistry({ origin, keys: shopKeys });
 

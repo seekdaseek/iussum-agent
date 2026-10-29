@@ -159,3 +159,25 @@ test('evidence: a record built from fixture answers is refused unless fixtures a
   assert.ok((await verifyEvidence(ev, { shopKey: key.publicKey })).problems.some((x) => /fixture adapter/.test(x)));
   assert.equal((await verifyEvidence(ev, { shopKey: key.publicKey, allowFixture: true })).ok, true);
 });
+
+test('when nothing matches the offer, the overlay can show what the vision model says IS there; it is illustrative and never changes the outcome', async () => {
+  const img = await syntheticPng('glass');
+  const calls = [];
+  const provider = {
+    segment: async (_i, phrase) => { calls.push(phrase); if (phrase === 'red ceramic mug') return { value: await readSamResult(''), meta: { provider: 'meta', model: 'sam-3.1' } }; return { value: await readSamResult(SAM_SAMPLE), meta: { provider: 'meta', model: 'sam-3.1' } }; },
+    vision: async () => ({ value: { observed_object: 'Clear Glass Tumbler', observed_colour: null, observed_material: 'glass', matches_offer: 'no', violates_must_not: false, confidence: 0.97, reason: 'r' }, meta: { provider: 'meta', model: 'm' } }),
+  };
+  const run = await runDeliveryCheck({ provider, image: img, offer, spec });
+  assert.deepEqual(calls, ['red ceramic mug', 'clear glass tumbler']);
+  assert.equal(run.rule.outcome, 'NOT_AS_OFFERED'); assert.equal(run.overlay_shows, 'observed');
+  assert.equal(run.checks.observed.illustrative, true); assert.equal(run.checks.observed.instances.length, 2);
+  // a failing observed lookup leaves the outcome alone
+  const failing = { ...provider, segment: async (_i, phrase) => { if (phrase === 'red ceramic mug') return { value: await readSamResult(''), meta: { provider: 'meta', model: 'sam-3.1' } }; throw Object.assign(new Error('503'), { kind: 'http' }); } };
+  const run2 = await runDeliveryCheck({ provider: failing, image: img, offer, spec });
+  assert.equal(run2.rule.outcome, 'NOT_AS_OFFERED'); assert.match(run2.checks.observed.error, /http/); assert.equal(run2.overlay_shows, null);
+  // no lookup when the delivery matched, or the object name is absent
+  const ok = await runDeliveryCheck({ provider: { segment: async (_i, ph) => { calls.push(`ok:${ph}`); return { value: await readSamResult(SAM_SAMPLE), meta: { provider: 'meta', model: 's' } }; }, vision: async () => ({ value: { observed_object: 'mug', observed_colour: 'red', observed_material: 'ceramic', matches_offer: 'yes', violates_must_not: false, confidence: 0.95, reason: 'r' }, meta: { provider: 'meta', model: 'm' } }) }, image: img, offer, spec });
+  assert.equal(ok.rule.outcome, 'DELIVERED_AS_OFFERED'); assert.equal(ok.checks.observed, undefined); assert.equal(ok.overlay_shows, 'offered');
+  // the evidence record carries what the overlay shows
+  assert.equal(buildEvidence({ receipt: { tx_sig: 'x' }, mandate_id: null, grant_tx: null, offer, spec, delivery: { bytes: img, attestation: {} }, run, now: 1 }).record.overlay.shows, 'observed');
+});

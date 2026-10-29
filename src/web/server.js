@@ -147,7 +147,7 @@ export function createWebApp(cfg) {
 <dt>Refund</dt><dd>${row.refund_tx ? `<a href="${esc(explorerTx(row.refund_tx))}" rel="noopener">${esc(row.refund_tx.slice(0, 16))}…</a>` : 'none'}</dd>
 <dt>Evidence id</dt><dd><code>${esc(row.evidence_id)}</code> (<a href="/runs/${esc(ref.run_id)}/evidence-${ref.n}.json">JSON</a>)</dd></dl>
 <section class="pair"><figure><figcaption>What the shop offered</figcaption><p class="offer"><b>${esc(rec.offer.title)}</b><br>${esc(rec.offer.description)}</p></figure>
-<figure><figcaption>What it delivered, with the segmentation mask</figcaption><img src="/runs/${esc(ref.run_id)}/${esc(p.overlay)}" alt="delivered image with the mask of the segmented object"></figure></section>
+<figure><figcaption>${esc(rec.overlay?.shows === 'observed' ? `What it delivered. Nothing matched the offer; mask of what was found instead: ${rec.checks.observed?.phrase ?? ''}` : rec.overlay?.shows === 'offered' ? 'What it delivered, with the mask of the offered item' : 'What it delivered. Nothing matching the offer was found')}</figcaption><img src="/runs/${esc(ref.run_id)}/${esc(p.overlay)}" alt="delivered image with the mask of the segmented object"></figure></section>
 <p>The delivery check looked for <b>${esc(rec.spec.noun_phrase)}</b>. Segmentation found ${rec.checks.seg?.instances?.length ?? 0} match${rec.checks.seg?.instances?.length === 1 ? '' : 'es'}${a ? ` (best confidence ${esc(a.confidence ?? 'n/a')})` : ''}; the vision model saw <b>${esc(full?.observed_object ?? 'n/a')}</b> and answered <b>${esc(full?.matches_offer ?? 'n/a')}</b>. Models: ${esc(rec.checks.seg?.model?.model ?? '-')}, ${esc(rec.checks.full?.model?.model ?? '-')}.</p>
 <p><a href="/">Run it yourself</a></p></main></body></html>`);
   });
