@@ -1,0 +1,26 @@
+[Unit]
+Description=cloudflared tunnel "meta" for meta.ochinimus.app (dedicated; the shared config.yml and every other tunnel are untouched)
+After=network-online.target iussum-meta.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/cloudflared tunnel --config /root/.cloudflared/meta.yml --no-autoupdate run
+MemoryMax=150M
+MemorySwapMax=0
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+
+# /root/.cloudflared/meta.yml (tunnel and credentials-file carry the tunnel UUID, not repeated here):
+# tunnel: <UUID>
+# credentials-file: /root/.cloudflared/<UUID>.json
+# 
+# ingress:
+#   - hostname: meta.ochinimus.app
+#     service: http://127.0.0.1:3040
+#   - service: http_status:404

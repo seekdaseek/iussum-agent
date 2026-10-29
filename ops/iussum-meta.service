@@ -1,0 +1,26 @@
+[Unit]
+Description=iussum-agent live demo (meta.ochinimus.app). Outside PM2 on purpose: the kernel enforces the memory cap.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/iussum-agent
+Environment=MODEL_PROVIDER=baseten
+Environment=MODEL_PROVIDER_SEGMENT=groundsam
+Environment=PORT=3040
+Environment=ORIGIN=https://meta.ochinimus.app
+Environment=DATA_DIR=/opt/iussum-agent/data
+Environment=TRUST_CF=1
+Environment=STOP_AT_USD=70
+ExecStart=/usr/bin/node --no-warnings --max-old-space-size=200 --env-file=/opt/iussum-agent/.env scripts/serve.mjs
+MemoryMax=250M
+MemorySwapMax=0
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

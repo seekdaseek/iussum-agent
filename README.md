@@ -23,7 +23,7 @@ Working end to end on Solana devnet with real model calls: a request is compiled
 
 Measured, not claimed: the compile eval (30 requests plus 22 held-out) and a 28-image labelled calibration of the delivery rule. Numbers and failures are in the day reports, not here, because they will keep changing until submission. The thresholds were chosen from a small set labelled by one person.
 
-Not done yet: the live deployment, the video. SAM 2.1 runs on Modal CPU (Modal requires a payment method for GPU functions): about 9 s per image warm, about 30 s on the first request after idle.
+Live at https://meta.ochinimus.app (devnet, one run at a time, rate limited): a systemd service with a 250 MB kernel memory cap and no swap, behind its own Cloudflare tunnel (`ops/`). Not done yet: the video. SAM 2.1 runs on Modal CPU (Modal requires a payment method for GPU functions): about 9 s per image warm, about 30 s on the first request after idle.
 
 ## The pipeline
 
