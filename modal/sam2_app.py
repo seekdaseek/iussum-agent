@@ -1,8 +1,7 @@
 """SAM 2.1 (Meta open weights, Apache-2.0, ungated) behind a Modal web endpoint: a box in, a mask out. Used by models/adapters/groundsam.js after
 Muse Spark Open has grounded the noun phrase to a box.
 
-STATUS: written from the documented transformers API (huggingface.co/docs/transformers/model_doc/sam2, box-prompt example, read 2026-10-29);
-NOT YET DEPLOYED OR RUN. Deploy:  .venv/bin/modal deploy modal/sam2_app.py   (needs `modal token new` and the secret below).
+STATUS: written from the documented transformers API (huggingface.co/docs/transformers/model_doc/sam2, box-prompt example, read 2026-10-29). Deploy:  .venv/bin/modal deploy modal/sam2_app.py   (needs `modal token new` and the secret below).
 Secret:  modal secret create sam-endpoint-token SAM_ENDPOINT_TOKEN=<random>   (the same value goes in .env as MODAL_SAM_TOKEN)
 
 Wire format (documented in models/adapters/groundsam.js):
@@ -15,24 +14,27 @@ import io
 import os
 
 import modal
+from fastapi import HTTPException, Request  # needed locally too: Modal reads the endpoint's signature at deploy time
 
-MODEL_ID = "facebook/sam2.1-hiera-large"
+MODEL_ID = os.environ.get("SAM_MODEL_ID", "facebook/sam2.1-hiera-large")
+GPU = os.environ.get("SAM_GPU") or None  # unset = CPU: Modal asks for a payment method before it runs any GPU function
 app = modal.App("iussum-agent-sam2")
-image = modal.Image.debian_slim(python_version="3.12").pip_install("torch", "transformers", "pillow", "numpy", "fastapi[standard]", "accelerate")
+image = modal.Image.debian_slim(python_version="3.12").pip_install("torch", "torchvision", "transformers", "pillow", "numpy", "fastapi[standard]", "accelerate").env({"HF_HOME": "/cache/hf"})
+cache = modal.Volume.from_name("sam-hf-cache", create_if_missing=True)  # weights downloaded once, not at every cold start
 
 with image.imports():
     import numpy as np
     import torch
-    from fastapi import HTTPException, Request
     from PIL import Image
     from transformers import Sam2Model, Sam2Processor
 
 
-@app.cls(image=image, gpu="T4", scaledown_window=300, timeout=120, secrets=[modal.Secret.from_name("sam-endpoint-token")])
+@app.cls(image=image, gpu=GPU, cpu=4.0, memory=8192, scaledown_window=120, timeout=300, volumes={"/cache": cache}, secrets=[modal.Secret.from_name("sam-endpoint-token")])
 class Segmenter:
     @modal.enter()
     def load(self):
-        self.model = Sam2Model.from_pretrained(MODEL_ID).to("cuda").eval()
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model = Sam2Model.from_pretrained(MODEL_ID).to(self.device).eval()
         self.processor = Sam2Processor.from_pretrained(MODEL_ID)
 
     @modal.fastapi_endpoint(method="POST")
@@ -43,7 +45,7 @@ class Segmenter:
         if not (1 <= len(boxes) <= 8) or any(len(b) != 4 for b in boxes):
             raise HTTPException(status_code=400, detail="boxes must be 1 to 8 boxes of [x1, y1, x2, y2]")
         img = Image.open(io.BytesIO(base64.b64decode(body["image_b64"]))).convert("RGB")
-        inputs = self.processor(images=img, input_boxes=[[[float(v) for v in b] for b in boxes]], return_tensors="pt").to("cuda")
+        inputs = self.processor(images=img, input_boxes=[[[float(v) for v in b] for b in boxes]], return_tensors="pt").to(self.device)
         with torch.no_grad():
             out = self.model(**inputs, multimask_output=False)
         masks = self.processor.post_process_masks(out.pred_masks.cpu(), inputs["original_sizes"])[0]  # (n_boxes, 1, H, W) bool

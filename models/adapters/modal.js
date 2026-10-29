@@ -1,5 +1,5 @@
-// Modal adapter: SAM 3.1 open weights behind OUR OWN Modal web endpoint (modal/sam_app.py). It serves segmentation only. UNTESTED: no Modal account, no
-// deployed endpoint, no Hugging Face access to the gated weights yet (facebook/sam3.1, SAM License of 2025-11-19, see models/PROVIDERS.md).
+// Modal adapter, path A: SAM 3 open weights (facebook/sam3; SAM 3.1 is a drop-in once its gated access is granted) behind OUR OWN Modal web endpoint
+// (modal/sam3_app.py). The phrase goes in, instance masks come out. It serves segmentation only.
 //
 // Wire format of our endpoint (we define it, so it is documented here, not guessed):
 //   POST MODAL_SAM_URL  { image_b64, phrase }  with  Authorization: Bearer <MODAL_SAM_TOKEN>

@@ -7,7 +7,7 @@ One interface per job (`models/provider.js`), three real adapters, one test-only
 | `transcribe` | `muse-voice-transcribe-1.0`, `POST /v1/asr/transcribe`, WAV mono PCM 16/24 kHz | Muse Spark Open, `audio_url` part | no |
 | `compileMandate` | `muse-spark-1.3`, `response_format: json_schema` | Muse Spark Open, JSON asked for in the prompt, validated by us | no |
 | `vision` | `muse-spark-1.3`, `image_url` data URL | Muse Spark Open, `image_url` part | no |
-| `segment` | `sam-3.1`, `POST /v1/responses`, parsed with `@meta-sam/parser` | no | SAM 3.1 weights behind our own endpoint (`modal/sam_app.py`) |
+| `segment` | `sam-3.1`, `POST /v1/responses`, parsed with `@meta-sam/parser` | no | SAM 3 weights (facebook/sam3) behind our own endpoint (`modal/sam3_app.py`), `MODEL_PROVIDER_SEGMENT=modal` |
 | `generateImage` / `editImage` | `muse-image-1.0`, `/v1/images/generations` and `/v1/images/edits` | no | no |
 
 A job a provider does not serve throws `ProviderError('unsupported')`. Nothing falls back silently to another provider.
@@ -36,7 +36,6 @@ muse-spark-1.3 Standard: $1.25 in / $4.25 out per 1M tokens. Voice Transcribe: $
 - Hugging Face `facebook/sam3.1` (gated; the card says no Transformers integration) and `facebook/sam3` (gated, Transformers `Sam3Model`). SAM 3.1 was released 2026-03-27 per the official GitHub README; its headline change is faster multi-object video tracking.
 - Licence: SAM License, last updated 2025-11-19 (the same text ships in `@meta-sam/parser`). Reading of the text by the research pass: non-exclusive royalty-free licence to use, reproduce, distribute and modify; redistribution of weights or derivatives must carry the same agreement; a published-research acknowledgement clause; prohibited uses include military, nuclear, espionage, weapons and ITAR-controlled activity; sanctions and trade-control compliance; no geographic restriction beyond that. Read the LICENSE text itself before shipping weights anywhere. A hosted endpoint that never ships weights is the low-risk route.
 - Needs: Python 3.12+, PyTorch 2.7+, a CUDA GPU (CUDA 12.6+), `pip install -e .` from github.com/facebookresearch/sam3, and an approved Hugging Face access request (rejections and delays are reported by others). No official Modal example for SAM 3 / 3.1 was found; Modal's SAM 2 example is the nearest template.
-- `modal/sam_app.py` in this repo is a sketch of that endpoint, NOT deployed and NOT run.
 
 ## Fixture adapter (offline tests only)
 
