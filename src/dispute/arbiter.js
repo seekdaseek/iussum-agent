@@ -88,21 +88,25 @@ export function createArbiter({ rpc, store, sendRefund = null, sellerKey, provid
     if (!t.source_owner) mism.push('the principal (source owner) is not readable from the transaction');
     if (mismatches(mism)) return rejected('payment_not_proven', mism);
 
-    let outcome = v.outcome, notes = [];
+    let outcome = v.outcome, notes = [], rc = null;
     if (recheck) { // the arbiter looks at the shop-attested bytes itself, with its own model calls
       if (!provider || !delivered) return rejected('recheck_unavailable', ['recheck needs a provider and the delivered image attached']);
+      const t0 = Date.now();
       const run = await runDeliveryCheck({ provider, image: delivered, offer: record.offer, spec: record.spec, thresholds: record.rule.thresholds });
+      const cost = [run.checks.seg, run.checks.full, run.checks.crop, run.checks.observed].reduce((a, c) => a + (c?.model?.cost_usd ?? 0), 0);
+      // what the re-run cost and whether it agreed with the filer's outcome: kept on the verdict so the agreement rate can be measured
+      rc = { agreed: run.rule.outcome === outcome, filed_outcome: outcome, recheck_outcome: run.rule.outcome, recheck_code: run.rule.code, recheck_reasons: run.rule.reasons, ms: Date.now() - t0, model_cost_usd: Number(cost.toFixed(6)), checks: { segment: run.checks.seg?.error ? 'error' : `${run.checks.seg.instances.length} found`, full: run.checks.full?.answer ? `${run.checks.full.answer.matches_offer} ${run.checks.full.answer.confidence}` : 'error', crop: run.checks.crop?.answer ? `${run.checks.crop.answer.matches_offer} ${run.checks.crop.answer.confidence}` : (run.checks.crop ? 'error' : 'not run') } };
       notes.push({ recheck_outcome: run.rule.outcome, recheck_code: run.rule.code });
       if (run.rule.outcome !== outcome) outcome = 'COULD_NOT_BE_CHECKED';
     }
     const base = { tx_sig, evidence_id: evidence.evidence_id, outcome, record_json: canonicalize(record), created_at: now() };
-    if (outcome === 'COULD_NOT_BE_CHECKED') return { verdict: 'undecided', reason: 'could_not_be_checked', liable: null, outcome, evidence_id: evidence.evidence_id, tx_sig, refund_tx: null, notes };
+    if (outcome === 'COULD_NOT_BE_CHECKED') return { verdict: 'undecided', reason: 'could_not_be_checked', liable: null, outcome, evidence_id: evidence.evidence_id, tx_sig, refund_tx: null, notes, recheck: rc };
     if (outcome === 'DELIVERED_AS_OFFERED') {
       store.insert({ ...base, verdict: 'invalid', reason: 'delivered_as_offered', liable: 'principal' });
-      return out(store.get(tx_sig), { notes });
+      return out(store.get(tx_sig), { notes, recheck: rc });
     }
     const fresh = store.insert({ ...base, verdict: 'valid', reason: 'not_as_offered', liable: 'seller', refund_to: t.source_owner, refund_amount: t.amount, refund_mint: t.mint, refund_decimals: t.decimals });
-    let extra = { duplicate: !fresh, notes };
+    let extra = { duplicate: !fresh, notes, recheck: rc };
     try { extra = { ...extra, ...(await payRefund(tx_sig)) }; } catch (e) { extra.refund_error = e.message; }
     return out(store.get(tx_sig), extra);
   }

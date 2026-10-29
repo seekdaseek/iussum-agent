@@ -85,7 +85,7 @@ export function createPipeline(cfg) {
       if (entry.outcome === 'NOT_AS_OFFERED') {
         emit({ type: 'dispute_start', n });
         const v = await arbiter.dispute({ evidence: ev, overlay_png_b64: run1.overlay_png.toString('base64'), delivered_b64: r.bytes.toString('base64'), mandate });
-        entry.verdict = { verdict: v.verdict, reason: v.reason, liable: v.liable, problems: v.problems ?? null, refund_tx: v.refund_tx ?? null, refund_url: v.refund_tx ? explorerTx(v.refund_tx) : null, refund_error: v.refund_error ?? null, refund_state: v.refund_state ?? null };
+        entry.verdict = { verdict: v.verdict, reason: v.reason, liable: v.liable, problems: v.problems ?? null, refund_tx: v.refund_tx ?? null, refund_url: v.refund_tx ? explorerTx(v.refund_tx) : null, refund_error: v.refund_error ?? null, refund_state: v.refund_state ?? null, recheck: v.recheck ?? null };
         emit({ type: 'verdict', n, ...entry.verdict });
       }
       save();

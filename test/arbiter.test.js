@@ -135,10 +135,12 @@ test('recheck: the arbiter re-runs the check on the attested bytes; a disagreein
   const v = await a.arb.dispute(a.c.payload);
   assert.equal(v.verdict, 'valid');
   assert.equal(v.notes[0].recheck_outcome, 'NOT_AS_OFFERED');
+  assert.equal(v.recheck.agreed, true); assert.equal(v.recheck.filed_outcome, 'NOT_AS_OFFERED'); assert.ok(Number.isFinite(v.recheck.ms)); assert.ok(v.recheck.model_cost_usd >= 0); assert.match(v.recheck.checks.full, /^no 0\.95/);
   const disagree = stubProvider({ vision: [vans('yes', 0.95), vans('yes', 0.9)] });
   const b = await setup({ arb: { provider: disagree, recheck: true } });
   const w = await b.arb.dispute(b.c.payload);
   assert.deepEqual([w.verdict, w.reason], ['undecided', 'could_not_be_checked']);
+  assert.equal(w.recheck.agreed, false); assert.equal(w.recheck.filed_outcome, 'NOT_AS_OFFERED'); assert.equal(w.recheck.recheck_outcome, 'DELIVERED_AS_OFFERED');
   assert.equal(b.sent.length, 0);
   const none = await setup({ arb: { recheck: true } });
   assert.equal((await none.arb.dispute(none.c.payload)).reason, 'recheck_unavailable');
