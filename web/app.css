@@ -52,3 +52,11 @@ footer{color:var(--muted);font-size:13px;margin-top:28px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spin{animation:none;border-top-color:var(--line);background:var(--accent)}}
 .timeline li.bad{color:var(--bad)}
+
+.track{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.track div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.track b{display:block;font-size:44px;line-height:1.05;font-variant-numeric:tabular-nums}
+.track span{display:block;font-size:14px;color:var(--ink);margin-top:2px}
+.track small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.track-cal{font-size:18px;margin:6px 0 10px}
+.models{color:var(--muted);font-size:14px}

@@ -119,3 +119,17 @@ test('run files: only the known file names of a well-formed run id are served; t
   for (const p of [`/runs/${id}/secret.txt`, `/runs/${id}/..%2Fdaily-spend.json`, `/runs/..%2F${id}/img-1.png`, '/runs/20261026000000-abcde/img-9.png', '/runs/bad/img-1.png', '/api/runs/bad', '/api/runs/20261026000000-zzzzz', '/v/short', `/v/${'1'.repeat(88)}`]) assert.equal((await fetch(s.base + p)).status, 404, p);
   s.close();
 });
+
+test('the track record endpoint serves the committed tally; a missing file is a 404, not a crash', async () => {
+  const s = await boot();
+  const r = await s.j('/api/track-record');
+  if (r.status === 200) { const t = await r.json(); assert.equal(t.total.runs, t.local.runs + t.page.runs); assert.equal(t.total.photos, t.local.photos + t.page.photos); assert.equal(t.total.caught + t.total.delivered_as_offered + t.total.could_not_be_checked, t.total.photos); assert.equal(t.runs.length, t.total.runs); }
+  else assert.equal(r.status, 404);
+  const page = await (await fetch(`${s.base}/`)).text(); assert.match(page, /id="track"/);
+});
+
+test('verdict check line names the models by what the record says was used', async () => {
+  const { checkLine } = await import('../src/web/server.js');
+  assert.equal(checkLine({ checks: { full: { model: { model: 'meta-models/muse-spark-open-1026' } }, seg: { model: { provider: 'baseten+modal' } } } }), "Muse Spark Open finds the item, Meta's SAM 2.1 cuts the mask (Modal), Muse Spark Open judges it.");
+  assert.doesNotMatch(checkLine({ checks: { full: { model: { model: 'meta-models/muse-spark-open-1026' } }, seg: { model: { provider: 'baseten' } } } }), /SAM/);
+});

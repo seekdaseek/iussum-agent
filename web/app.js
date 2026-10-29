@@ -145,3 +145,16 @@ async function finish(runId) {
     card.append(links); list.append(card);
   }
 }
+
+// ---- track record: the committed tally (docs/track-record.json), split honestly into local runs and runs on this page
+(async () => {
+  try {
+    const t = await (await fetch('/api/track-record')).json(); if (t.error) throw new Error(t.error);
+    const n = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
+    const rows = [['runs with the check on', 'runs'], ['photos bought', 'photos'], ['caught and refunded', 'caught'], ['honest deliveries paid', 'delivered_as_offered'], ['could not be checked', 'could_not_be_checked'], ['USDC refunded', 'refunded_usdc']];
+    const box = $('trackNums'); box.textContent = '';
+    for (const [label, k] of rows) box.append(el('div', {}, el('b', { text: n(t.total[k]) }), el('span', { text: label }), el('small', { text: `local runs ${n(t.local[k])} · runs on this page ${n(t.page[k])}` })));
+    $('trackCal').textContent = `${t.calibration.labelled_photos} labelled photos: ${t.calibration.false_passes} false passes, ${t.calibration.false_accusations} false accusations (on the ${t.calibration.clear_cases} clear cases)`;
+    $('trackAbout').textContent = `Counted ${t.counted_at} from the stored run reports: real model calls on Solana devnet, delivery check on. "Local runs" were made on the author's machine, "runs on this page" through this page. ${t.controls.length} control runs (check off) are not counted.`;
+  } catch { $('trackAbout').textContent = 'The tally could not be loaded.'; }
+})();

@@ -9,6 +9,11 @@ import { newRunId } from '../run/pipeline.js';
 import { explorerTx } from '../chain/chain.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+// Names the models that did each step, from what the record says was used: the SAM 2.1 wording only when the segmentation went through the box + SAM 2.1 adapter ('baseten+modal').
+export function checkLine(rec) {
+  const ms = rec.checks?.full?.model?.model ?? 'Muse Spark Open', spark = /muse-spark-open/.test(ms) ? 'Muse Spark Open' : ms, sam = rec.checks?.seg?.model?.provider === 'baseten+modal';
+  return sam ? `${spark} finds the item, Meta's SAM 2.1 cuts the mask (Modal), ${spark} judges it.` : `${spark} finds the item and judges it (no mask model was used for this record).`;
+}
 const RUN_FILE = /^(img|overlay)-\d{1,2}\.png$|^evidence-\d{1,2}\.json$|^run\.json$/;
 const RUN_ID = /^[0-9]{14}-[a-z0-9]{5}$/;
 export const DEFAULT_RULES = { transcribe: { max: 8, windowMs: 600_000 }, compile: { max: 15, windowMs: 600_000 }, run: { max: 3, windowMs: 3_600_000 } };
@@ -43,6 +48,12 @@ export function createWebApp(cfg) {
     let balances = null;
     try { balances = { principal_usdc: String(await chain.usdc(keys.principal.address)), float_usdc: String(await chain.usdc(keys.float.address)) }; } catch { /* the page shows nothing rather than a wrong number */ }
     res.json({ dev_stubs: devStubs, providers: provNames(), model_spend: provider.ledger.summary(), daily: daily.snapshot(), busy: flight.active ? { since: flight.active.since } : null, network: 'solana devnet', balances, shops: cfg.ctxBase.shops.map((s) => ({ id: s.id, name: s.name })) });
+  });
+
+  // The committed tally behind the page's "Track record" panel (scripts/track-record.mjs writes it; CHECKLIST.md says how it is counted).
+  const trackFile = cfg.trackRecordFile ?? path.join(webDir, '..', 'docs', 'track-record.json');
+  app.get('/api/track-record', (_req, res) => {
+    try { res.json(JSON.parse(fs.readFileSync(trackFile, 'utf8'))); } catch { res.status(404).json({ error: 'no_track_record' }); }
   });
 
   app.post('/api/transcribe', async (req, res) => {
@@ -150,7 +161,8 @@ export function createWebApp(cfg) {
 ${p.verdict?.recheck ? `<dt>Arbiter's own re-run</dt><dd>${esc(p.verdict.recheck.recheck_outcome)}, ${p.verdict.recheck.agreed ? 'agrees with the filed record' : 'differs from the filed record'} (${esc((p.verdict.recheck.ms / 1000).toFixed(1))} s; segmentation ${esc(p.verdict.recheck.checks?.segment ?? 'n/a')}, vision ${esc(p.verdict.recheck.checks?.full ?? 'n/a')})</dd>` : ''}</dl>
 <section class="pair"><figure><figcaption>What the shop offered</figcaption><p class="offer"><b>${esc(rec.offer.title)}</b><br>${esc(rec.offer.description)}</p></figure>
 <figure><figcaption>${esc(rec.overlay?.shows === 'observed' ? `What it delivered. Nothing matched the offer; mask of what was found instead: ${rec.checks.observed?.phrase ?? ''}` : rec.overlay?.shows === 'offered' ? 'What it delivered, with the mask of the offered item' : 'What it delivered. Nothing matching the offer was found')}</figcaption><img src="/runs/${esc(ref.run_id)}/${esc(p.overlay)}" alt="delivered image with the mask of the segmented object"></figure></section>
-<p>The delivery check looked for <b>${esc(rec.spec.noun_phrase)}</b>. Segmentation found ${rec.checks.seg?.instances?.length ?? 0} match${rec.checks.seg?.instances?.length === 1 ? '' : 'es'}${a ? ` (best confidence ${esc(a.confidence ?? 'n/a')})` : ''}; the vision model saw <b>${esc(full?.observed_object ?? 'n/a')}</b> and answered <b>${esc(full?.matches_offer ?? 'n/a')}</b>. Models: ${esc(rec.checks.seg?.model?.model ?? '-')}, ${esc(rec.checks.full?.model?.model ?? '-')}.</p>
+<p>The delivery check looked for <b>${esc(rec.spec.noun_phrase)}</b>. Segmentation found ${rec.checks.seg?.instances?.length ?? 0} match${rec.checks.seg?.instances?.length === 1 ? '' : 'es'}${a ? ` (best confidence ${esc(a.confidence ?? 'n/a')})` : ''}; the vision model saw <b>${esc(full?.observed_object ?? 'n/a')}</b> and answered <b>${esc(full?.matches_offer ?? 'n/a')}</b>.</p>
+<p class="models">${checkLine(rec)}</p>
 <p><a href="/">Run it yourself</a></p></main></body></html>`);
   });
 

@@ -1,0 +1,170 @@
+{
+ "about": "Counted from the stored run reports (run.json) with scripts/track-record.mjs. \"local\" = runs on the author's machine, \"page\" = runs through https://meta.ochinimus.app. Real model calls, Solana devnet, check on. Control runs (check off) are listed apart and not counted.",
+ "counted_at": "2026-10-29",
+ "local": {
+  "runs": 8,
+  "photos": 22,
+  "caught": 21,
+  "delivered_as_offered": 1,
+  "could_not_be_checked": 0,
+  "refunded_usdc": 3.15
+ },
+ "page": {
+  "runs": 5,
+  "photos": 15,
+  "caught": 15,
+  "delivered_as_offered": 0,
+  "could_not_be_checked": 0,
+  "refunded_usdc": 2.25
+ },
+ "total": {
+  "runs": 13,
+  "photos": 37,
+  "caught": 36,
+  "delivered_as_offered": 1,
+  "could_not_be_checked": 0,
+  "refunded_usdc": 5.4
+ },
+ "calibration": {
+  "labelled_photos": 28,
+  "clear_cases": 22,
+  "false_passes": 0,
+  "false_accusations": 0,
+  "source": "eval/delivery-labels.json and eval/results/; README.md, Evaluation"
+ },
+ "controls": [
+  {
+   "id": "20261029082008-r530l",
+   "where": "local",
+   "purchased": 3,
+   "paid_usdc": 0.45,
+   "net_loss_usdc": 0.45
+  },
+  {
+   "id": "20261029083838-zhkyh",
+   "where": "page",
+   "purchased": 3,
+   "paid_usdc": 0.45,
+   "net_loss_usdc": 0.45
+  }
+ ],
+ "runs": [
+  {
+   "id": "20261029060640-nb6t3",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029060927-enxn0",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029061247-f8dma",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029061555-z4eqm",
+   "where": "local",
+   "photos": 1,
+   "caught": 0,
+   "delivered_as_offered": 1,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0
+  },
+  {
+   "id": "20261029070146-gm4qc",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029075308-6q77x",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029075723-72u7o",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029080145-zju45",
+   "where": "local",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029071440-g7mh4",
+   "where": "page",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029072831-o6yv7",
+   "where": "page",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029082148-jafc7",
+   "where": "page",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029083353-935ui",
+   "where": "page",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  },
+  {
+   "id": "20261029095306-mgb1p",
+   "where": "page",
+   "photos": 3,
+   "caught": 3,
+   "delivered_as_offered": 0,
+   "could_not_be_checked": 0,
+   "refunded_usdc": 0.45
+  }
+ ]
+}
