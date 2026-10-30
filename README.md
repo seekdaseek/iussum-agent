@@ -2,6 +2,8 @@
 
 Tell your AI agent out loud what it may spend; it buys within those limits, and when a seller delivers the wrong thing it builds the evidence itself and gets the money back by rule.
 
+**Demo video (2:53): https://www.youtube.com/watch?v=9CExAnb9XKE**. **Post on X: https://x.com/ochinimus/status/2115768140793589838**. Live page: https://meta.ochinimus.app. Shot list of the video and the source of every number in it: `docs/VIDEO.md`.
+
 Entry for the Meta Global AI Developer Hackathon (Indie Developer track). Everything outside `prior/` was written after the event opened on 2026-10-26 17:00 UTC; the git history shows it. Solana devnet only, test money only.
 
 ## Built on Meta's open weights
@@ -17,13 +19,13 @@ Muse Spark Open gives a box for the offered noun phrase; SAM 2.1 turns the box i
 
 Muse Image was planned for the shop catalogues (and for the dishonest shop's swapped deliveries as image edits). It is not used: the Meta Model API is not available to this entry. The catalogues are real photographs under open licences (CC0 and CC BY, Wikimedia Commons), credited on each shop page and in `assets/photos/SOURCES.md`.
 
-## Status (2026-10-29)
+## Status (2026-10-30)
 
 Working end to end on Solana devnet with real model calls: a request is compiled by Muse Spark Open, the confirmed mandate is granted on chain, Muse Spark Open's tool loop buys photos from the demo shops, each delivery is checked, a wrong delivery produces an evidence record and a dispute, and the arbiter refunds on chain. The latest real runs: 3 photos bought from the dishonest shop, 3 caught, 3 refunded, net loss 0 USDC, about $0.01 of model spend per run; one photo bought from the honest shop and passed.
 
-Measured, not claimed: the compile eval (30 requests plus 22 held-out) and a 28-image labelled calibration of the delivery rule. Numbers and failures are in the day reports, not here, because they will keep changing until submission. The thresholds were chosen from a small set labelled by one person.
+Measured, not claimed: the compile eval (30 requests plus 22 held-out) and a 28-image labelled calibration of the delivery rule. The running tally of real runs is on the live page ("Track record") and in `docs/track-record.json`; how it is counted is in `CHECKLIST.md`, section 7. The compile eval numbers and failures are in `CHECKLIST.md`, item 4. The thresholds were chosen from a small set labelled by one person.
 
-Live at https://meta.ochinimus.app (devnet, one run at a time, rate limited): a systemd service with a 250 MB kernel memory cap and no swap, behind its own Cloudflare tunnel (`ops/`). Not done yet: the video. SAM 2.1 runs on Modal CPU (Modal requires a payment method for GPU functions): about 9 s per image warm, about 30 s on the first request after idle.
+Live at https://meta.ochinimus.app (devnet, one run at a time, rate limited): a systemd service with a 250 MB kernel memory cap and no swap, behind its own Cloudflare tunnel (`ops/`). The demo video is here: https://www.youtube.com/watch?v=9CExAnb9XKE (the post on X: https://x.com/ochinimus/status/2115768140793589838). SAM 2.1 runs on Modal CPU (Modal requires a payment method for GPU functions): about 9 s per image warm, about 30 s on the first request after idle.
 
 ## The pipeline
 
